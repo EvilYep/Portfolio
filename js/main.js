@@ -21,7 +21,7 @@ function resetSmooth() {
 }
 
 function BackGround() {
-    resetCoords();
+    //resetCoords();
     this.x = 0;
     this.x2 = 0;
     this.x3 = 0; 
@@ -47,10 +47,29 @@ function BackGround() {
     }
 }
 
+function ForeGround() {
+    this.render = function() {
+        buffer.canvas.width = map_tile_size * cols;
+        buffer.canvas.height = map_tile_size * rows;
+        for (let i = 0; i < map.length; i++) {
+            resetSmooth();
+            let value = map[i];
+            let tile_x = (i % cols) * map_tile_size;
+            let tile_y = Math.floor(i / cols) * map_tile_size;
+
+            buffer.drawImage(tile_sheet, value * dude_tile_size, 0, dude_tile_size, dude_tile_size, tile_x, tile_y, map_tile_size, map_tile_size);
+        }        
+        ctx.drawImage(buffer.canvas, 0, buffer.canvas.height - cH, cW, cH, 0, 0, cW, cH);
+    }
+    
+}
+
 // Found out this guy, who had a similar approach to canvasception, huge help !!
 // https://github.com/shubhamjain/penguin-walk
-function initCanvas() {
-    let background = new BackGround()
+function initCanvas(resArray) {
+    
+    let background = new BackGround();
+    let foreground = new ForeGround();
 
     function animate() {
         ctx.save();
@@ -60,20 +79,10 @@ function initCanvas() {
         resetCoords();
         ctx.canvas.width = cW;
         ctx.canvas.height = cH;
-        buffer.canvas.width = tile_size * cols;
-        buffer.canvas.height = tile_size * rows;
 
         background.render();
+        //foreground.render();
                 
-        for (let i = 0; i < map.length; i++) {
-            resetSmooth();
-            let value = map[i];
-            let tile_x = (i % cols) * tile_size;
-            let tile_y = Math.floor(i / cols) * tile_size;
-
-            buffer.drawImage(tile_sheet, value * tile_size, 0, tile_size, tile_size, tile_x, tile_y, tile_size, tile_size);
-        }        
-        ctx.drawImage(buffer.canvas, 0, 0, buffer.canvas.width, buffer.canvas.height, 0, 0, ctx.canvas.width, ctx.canvas.height);
         // End drawing
 
         ctx.restore();

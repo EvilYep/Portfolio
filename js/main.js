@@ -1,93 +1,80 @@
-const bg = new Image();
-const bg2 = new Image();
-const bg3 = new Image();
-const bg4 = new Image();
-const bg5 = new Image();
-const road = new Image();
-const tile_sheet = new Image();
-const margin = 75;
-
-bg.src = "./assets/bg/5.png";
-bg2.src = "./assets/bg/4.png";
-bg3.src = "./assets/bg/3.png";
-bg4.src = "./assets/bg/2.png";
-bg5.src = "./assets/bg/1.png";
-road.src = "./assets/bg/road.png"
-tile_sheet.src = "./assets/player/Biker_run.png";
-
-const cols = 64;
-const rows = 11;
-const tile_size = 48;
-const map = [
-    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-];
+// Found out this guy, who had done the very approach I was attempting to realize, huge help !!
+// https://github.com/shubhamjain/penguin-walk
 
 function initCanvas() {
     let ctx = document.getElementById('my-canvas').getContext('2d');
+    let buffer = document.createElement("canvas").getContext('2d');
     let cW = document.documentElement.clientWidth - margin;
     let cH = document.documentElement.clientHeight - margin;
     let coef = 1;
 
+    function resetCoords() {
+        cW = document.documentElement.clientWidth - margin;
+        cH = document.documentElement.clientHeight - margin;
+    }
+
+    function resetSmooth() {
+        ctx.mozImageSmoothingEnabled = false;
+        ctx.webkitImageSmoothingEnabled = false;
+        ctx.msImageSmoothingEnabled = false;
+        ctx.imageSmoothingEnabled = false;
+        buffer.mozImageSmoothingEnabled = false;
+        buffer.webkitImageSmoothingEnabled = false;
+        buffer.msImageSmoothingEnabled = false;
+        buffer.imageSmoothingEnabled = false;
+    }
+
     function BackGround() {
+        resetCoords();
         this.x = 0;
         this.x2 = 0;
         this.x3 = 0; 
         this.x4 = 0;
         this.xRoad = 0;
-        this.offset = cW / 0.63;
-
         this.y = 0; 
+        this.offset = cW / 0.63;
+        
+        // Dark magic revolving around unusual background images resolutions and an initial fixed size of the 'display' window
         this.render = function() {
             ctx.drawImage(bg5, 0, 0);
-            ctx.drawImage(bg4, this.x4-=coef, 0, cW / 0.63, cH / 1.85);
-            ctx.drawImage(bg3, this.x3-=(coef*2), cH / 12, cW / 0.63, cH / 1.85);
-            ctx.drawImage(bg2, this.x2-=(coef*2.5), cH / 8, cW / 0.63, cH / 1.85);
-            ctx.drawImage(bg, this.x-=(coef*3), cH / 6.3, cW / 0.63, cH / 1.85);
+            ctx.drawImage(bg4, this.x4-=coef, 0, this.offset, cH / 1.85);
+            ctx.drawImage(bg3, this.x3-=(coef*2), cH / 12, this.offset, cH / 1.85);
+            ctx.drawImage(bg2, this.x2-=(coef*2.5), cH / 8, this.offset, cH / 1.85);
+            ctx.drawImage(bg, this.x-=(coef*3), cH / 6.3, this.offset, cH / 1.85);
             ctx.drawImage(road, this.xRoad-=(coef*4), cH / 1.43, cW * 7, cH / 3.31);
-
 
             if(this.x <= -(this.offset/3 - 1) || this.x >= (this.offset/3 - 1) ) { this.x = 0; }
             if(this.x2 <= -(this.offset/3 - 1) || this.x2 >= (this.offset/3 - 1) ) { this.x2 = 0; }
             if(this.x3 <= -(this.offset/3 - 1) || this.x3 >= (this.offset/3 - 1) ) { this.x3 = 0; }
             if(this.x4 <= -(this.offset/3 - 1) || this.x4 >= (this.offset/3 - 1) ) { this.x4 = 0; }
-            if(this.xRoad <= -(cW * 7) || this.xRoad >= cW * 7) { this.xRoad = 0; }
+            if(this.xRoad <= -(cW * 3.49) || this.xRoad >= cW * 3.49) { this.xRoad = 0; }
         }
     }
+
     let background = new BackGround()
 
     function animate() {
-        //console.log('animate');
         ctx.save();
         ctx.clearRect(0, 0, cW, cH);
 
-
         // Start drawing
-        cW = document.documentElement.clientWidth - margin;
-        cH = document.documentElement.clientHeight - margin;
+        resetCoords();
         ctx.canvas.width = cW;
         ctx.canvas.height = cH;
+        buffer.canvas.width = tile_size * cols;
+        buffer.canvas.height = tile_size * rows;
 
         background.render();
-        ctx.fillStyle = "lime";
-        ctx.fillRect(100, 100, 10, 10);
                 
-        for (let i = 0; i < map.length - 1; i++) {
+        for (let i = 0; i < map.length; i++) {
+            resetSmooth();
             let value = map[i];
             let tile_x = (i % cols) * tile_size;
             let tile_y = Math.floor(i / cols) * tile_size;
 
-            //ctx.drawImage(tile_sheet, value * tile_size, 0, tile_size, tile_size, tile_x, tile_y, tile_size * 2, tile_size * 2);
+            buffer.drawImage(tile_sheet, value * tile_size, 0, tile_size, tile_size, tile_x, tile_y, tile_size, tile_size);
         }        
+        ctx.drawImage(buffer.canvas, 0, 0, buffer.canvas.width, buffer.canvas.height, 0, 0, ctx.canvas.width, ctx.canvas.height);
         // End drawing
 
         ctx.restore();
@@ -95,6 +82,35 @@ function initCanvas() {
     let animateInterval = setInterval(animate, 30);
 }
 
+function loadResources(imgPaths, whenLoaded)
+{
+	var imgs = {}, imgCounter = 0;
+
+  	imgPaths.forEach(function(path){
+		var img = document.createElement('img');
+		img.src = path;
+
+		var fileName = path.split(/[\./]/).slice(-2, -1)[0];
+		img.onload = function(){
+			imgs[fileName] = img;
+			imgCounter++;
+
+			if (imgPaths.length == imgCounter)
+			{
+                whenLoaded(imgs);	
+			}
+		};
+	});
+}
+
 window.addEventListener('load', function(event) {
-    initCanvas();
+    loadResources([
+        "./assets/bg/5.png",
+        "./assets/bg/4.png",
+        "./assets/bg/3.png",
+        "./assets/bg/2.png",
+        "./assets/bg/1.png",
+        "./assets/bg/road.png",
+        "./assets/player/Biker_hurt.png",
+    ], initCanvas);
 });

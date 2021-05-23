@@ -1,56 +1,55 @@
-// Found out this guy, who had done the very approach I was attempting to realize, huge help !!
+let ctx = document.getElementById('my-canvas').getContext('2d');
+let buffer = document.createElement("canvas").getContext('2d');
+let cW = document.documentElement.clientWidth - margin;
+let cH = document.documentElement.clientHeight - margin;
+let coef = 1;
+
+function resetCoords() {
+    cW = document.documentElement.clientWidth - margin;
+    cH = document.documentElement.clientHeight - margin;
+}
+
+function resetSmooth() {
+    ctx.mozImageSmoothingEnabled = false;
+    ctx.webkitImageSmoothingEnabled = false;
+    ctx.msImageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = false;
+    buffer.mozImageSmoothingEnabled = false;
+    buffer.webkitImageSmoothingEnabled = false;
+    buffer.msImageSmoothingEnabled = false;
+    buffer.imageSmoothingEnabled = false;
+}
+
+function BackGround() {
+    resetCoords();
+    this.x = 0;
+    this.x2 = 0;
+    this.x3 = 0; 
+    this.x4 = 0;
+    this.xRoad = 0;
+    this.y = 0; 
+    this.offset = cW / 0.63;
+    
+    // Dark magic revolving around unusual background images resolutions and an initial fixed size of the 'display' window
+    this.render = function() {
+        ctx.drawImage(bg5, 0, 0);
+        ctx.drawImage(bg4, this.x4-=coef, 0, this.offset, cH / 1.85);
+        ctx.drawImage(bg3, this.x3-=(coef*2), cH / 12, this.offset, cH / 1.85);
+        ctx.drawImage(bg2, this.x2-=(coef*2.5), cH / 8, this.offset, cH / 1.85);
+        ctx.drawImage(bg, this.x-=(coef*3), cH / 6.3, this.offset, cH / 1.85);
+        ctx.drawImage(road, this.xRoad-=(coef*4), cH / 1.43, cW * 7, cH / 3.31);
+
+        if(this.x <= -(this.offset/3 - 1) || this.x >= (this.offset/3 - 1) ) { this.x = 0; }
+        if(this.x2 <= -(this.offset/3 - 1) || this.x2 >= (this.offset/3 - 1) ) { this.x2 = 0; }
+        if(this.x3 <= -(this.offset/3 - 1) || this.x3 >= (this.offset/3 - 1) ) { this.x3 = 0; }
+        if(this.x4 <= -(this.offset/3 - 1) || this.x4 >= (this.offset/3 - 1) ) { this.x4 = 0; }
+        if(this.xRoad <= -(cW * 3.49) || this.xRoad >= cW * 3.49) { this.xRoad = 0; }
+    }
+}
+
+// Found out this guy, who had a similar approach to canvasception, huge help !!
 // https://github.com/shubhamjain/penguin-walk
-
 function initCanvas() {
-    let ctx = document.getElementById('my-canvas').getContext('2d');
-    let buffer = document.createElement("canvas").getContext('2d');
-    let cW = document.documentElement.clientWidth - margin;
-    let cH = document.documentElement.clientHeight - margin;
-    let coef = 1;
-
-    function resetCoords() {
-        cW = document.documentElement.clientWidth - margin;
-        cH = document.documentElement.clientHeight - margin;
-    }
-
-    function resetSmooth() {
-        ctx.mozImageSmoothingEnabled = false;
-        ctx.webkitImageSmoothingEnabled = false;
-        ctx.msImageSmoothingEnabled = false;
-        ctx.imageSmoothingEnabled = false;
-        buffer.mozImageSmoothingEnabled = false;
-        buffer.webkitImageSmoothingEnabled = false;
-        buffer.msImageSmoothingEnabled = false;
-        buffer.imageSmoothingEnabled = false;
-    }
-
-    function BackGround() {
-        resetCoords();
-        this.x = 0;
-        this.x2 = 0;
-        this.x3 = 0; 
-        this.x4 = 0;
-        this.xRoad = 0;
-        this.y = 0; 
-        this.offset = cW / 0.63;
-        
-        // Dark magic revolving around unusual background images resolutions and an initial fixed size of the 'display' window
-        this.render = function() {
-            ctx.drawImage(bg5, 0, 0);
-            ctx.drawImage(bg4, this.x4-=coef, 0, this.offset, cH / 1.85);
-            ctx.drawImage(bg3, this.x3-=(coef*2), cH / 12, this.offset, cH / 1.85);
-            ctx.drawImage(bg2, this.x2-=(coef*2.5), cH / 8, this.offset, cH / 1.85);
-            ctx.drawImage(bg, this.x-=(coef*3), cH / 6.3, this.offset, cH / 1.85);
-            ctx.drawImage(road, this.xRoad-=(coef*4), cH / 1.43, cW * 7, cH / 3.31);
-
-            if(this.x <= -(this.offset/3 - 1) || this.x >= (this.offset/3 - 1) ) { this.x = 0; }
-            if(this.x2 <= -(this.offset/3 - 1) || this.x2 >= (this.offset/3 - 1) ) { this.x2 = 0; }
-            if(this.x3 <= -(this.offset/3 - 1) || this.x3 >= (this.offset/3 - 1) ) { this.x3 = 0; }
-            if(this.x4 <= -(this.offset/3 - 1) || this.x4 >= (this.offset/3 - 1) ) { this.x4 = 0; }
-            if(this.xRoad <= -(cW * 3.49) || this.xRoad >= cW * 3.49) { this.xRoad = 0; }
-        }
-    }
-
     let background = new BackGround()
 
     function animate() {
@@ -103,7 +102,7 @@ function loadResources(imgPaths, whenLoaded)
 	});
 }
 
-window.addEventListener('load', function(event) {
+window.addEventListener('load', function(e) {
     loadResources([
         "./assets/bg/5.png",
         "./assets/bg/4.png",

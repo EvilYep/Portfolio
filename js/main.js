@@ -4,11 +4,19 @@ let cW = document.documentElement.clientWidth - GLOBAL_MARGIN;
 let cH = document.documentElement.clientHeight - GLOBAL_MARGIN;
 let speed = 0;
 let distance = INITIAL_DISTANCE;
+let tileSize = LEVEL_TILE_SIZES.LG;
+let bufferMaxSize = tileSize * COLS;
 
 let status = 'idle';
 let facing = 'right';
 let maxFrame = 4;
 let currentFrame = 0;
+let currentObjectFrame = 0;
+let middleOfTheRoad = 0;
+
+function checkUndesirableResizes() {
+    tileSize = cH < 700 ? LEVEL_TILE_SIZES.SM : LEVEL_TILE_SIZES.LG;
+}
 
 function resetCoords() {
     cW = document.documentElement.clientWidth - GLOBAL_MARGIN;
@@ -37,14 +45,17 @@ function BackGround() {
     this.scaling = cW / 0.63;
     
     // Dark magic revolving around unusual background images resolutions and an initial idea of a fixed 'display' window size
-    // And since there's NO WAY I'm changing these sweets free assets.....
+    // And since there's NO WAY I'm changing these sweets free assets, wud'ov tak' me yoars t'do doz, mate !.....
     this.render = function() {
         ctx.drawImage(bg5, 0, 0);
         ctx.drawImage(bg4, this.x4-=speed, 0, this.scaling, cH / 1.85);
         ctx.drawImage(bg3, this.x3-=(speed*2), cH / 12, this.scaling, cH / 1.85);
         ctx.drawImage(bg2, this.x2-=(speed*2.5), cH / 8, this.scaling, cH / 1.85);
         ctx.drawImage(bg, this.x-=(speed*3), cH / 6.3, this.scaling, cH / 1.85);
-        ctx.drawImage(road, this.xRoad-=(speed*6), cH / 1.43, cW * 7, cH / 3.31);
+        ctx.drawImage(road, this.xRoad-=(speed*6), cH / 1.48, cW * 7, cH / 3);
+
+        middleOfTheRoad = (cH + (cH / 1.48)) / 2 ;
+        //console.log(middleOfTheRoad);
 
         if((this.x <= -(this.scaling/3 - 1)) && status == 'running' && speed == 1) { this.x = 0; }
         if((this.x2 <= -(this.scaling/3 - 1)) && status == 'running' && speed == 1) { this.x2 = 0; }
@@ -62,20 +73,42 @@ function BackGround() {
     }
 }
 
-function ForeGround() {
+function ForeGround(resArray) {
+    this.imgs = resArray;
+    this.marginB = 2/100 * cH; 
+    
     this.render = function() {
-        buffer.canvas.width = LEVEL_TILE_SIZE * COLS;
-        buffer.canvas.height = LEVEL_TILE_SIZE * ROWS;
+        
+        buffer.canvas.width = tileSize * COLS;
+        buffer.canvas.height = tileSize * ROWS;
         
         for (let i = 0; i < levelLayout.length; i++) {
             refreshSmoothies();
             let value = levelLayout[i];
-            let tile_x = (i % COLS) * LEVEL_TILE_SIZE;
-            let tile_y = Math.floor(i / COLS) * LEVEL_TILE_SIZE;
+            let tile_x = (i % COLS) * tileSize;
+            let tile_y = Math.floor(i / COLS) * tileSize;
 
-            buffer.drawImage(tile_sheet, value * DUDES_TILE_SIZE, 0, DUDES_TILE_SIZE, DUDES_TILE_SIZE, tile_x, tile_y, LEVEL_TILE_SIZE, LEVEL_TILE_SIZE);
+            if(value == '!') {
+                buffer.drawImage(this.imgs.Pointer1, 0, 0, 32, 32, tile_x, tile_y, tileSize - 10, tileSize - 10);
+            }
+            if (value == '?') {
+                buffer.drawImage(this.imgs.Pointer2, 0, 0, 32, 32, tile_x, tile_y, tileSize - 5, tileSize - 5);
+            }
+            if (value == '<') {
+                buffer.drawImage(this.imgs.Fence1, 0, 0, 32, 32, tile_x, tile_y, tileSize, tileSize);
+            }
+            if (value == 'T') {
+                buffer.drawImage(this.imgs.Fence2, 0, 0, 32, 32, tile_x, tile_y, tileSize, tileSize);
+            }
+            if (value == '>') {
+                buffer.drawImage(this.imgs.Fence3, 0, 0, 32, 32, tile_x, tile_y, tileSize, tileSize);
+            }
+            if (value == 'P') {
+                buffer.drawImage(this.imgs.Screen2, currentObjectFrame * 32, 0, 32, 42, tile_x, tile_y - 5, tileSize - 40, tileSize);
+            }
+            //buffer.drawImage(tile_sheet, value * DUDES_TILE_SIZE, 0, DUDES_TILE_SIZE, DUDES_TILE_SIZE, tile_x, tile_y, LEVEL_TILE_SIZE, LEVEL_TILE_SIZE);
         }        
-        ctx.drawImage(buffer.canvas, distance - INITIAL_DISTANCE, buffer.canvas.height - cH, cW, cH, 0, 0, cW, cH);
+        ctx.drawImage(buffer.canvas, distance - INITIAL_DISTANCE, buffer.canvas.height - cH, cW, cH, 0, -this.marginB, cW, cH);
     }
 }
 
@@ -103,7 +136,7 @@ function Player(resArray) {
                 maxFrame = 4;
                 break;
         }
-        ctx.drawImage(this.sprite, currentFrame * DUDES_TILE_SIZE, 0, DUDES_TILE_SIZE, DUDES_TILE_SIZE, INITIAL_DISTANCE, cH*60/100, LEVEL_TILE_SIZE, LEVEL_TILE_SIZE);
+        ctx.drawImage(this.sprite, currentFrame * DUDES_TILE_SIZE, 0, DUDES_TILE_SIZE, DUDES_TILE_SIZE, INITIAL_DISTANCE, middleOfTheRoad - 190, 190, 190);
     }
 }
 
@@ -125,11 +158,11 @@ function stop() {
     currentFrame = 0;
 }
 
-// Found out this guy, who had a similar approach to canvasception, huge help !!
-// https://github.com/shubhamjain/penguin-walk
+
+
 function initCanvas(resArray) {
     let background = new BackGround();
-    let foreground = new ForeGround();
+    let foreground = new ForeGround(resArray);
     let player = new Player(resArray);
 
     function animateGlobal() {
@@ -138,6 +171,7 @@ function initCanvas(resArray) {
 
         // Start drawing
         resetCoords();
+        checkUndesirableResizes();
         ctx.canvas.width = cW;
         ctx.canvas.height = cH;
 
@@ -158,7 +192,7 @@ function initCanvas(resArray) {
                 stop();
             }, 2000);
         }
-        if(distance >= BUFFER_MAX_SIZE) {
+        if(distance >= bufferMaxSize) {
             stop();
             run(-1);
             setTimeout(function() {
@@ -171,17 +205,23 @@ function initCanvas(resArray) {
         ctx.restore();
     }
 
-    function animatePlayerSprite() {
+    function animateSprites() {
         currentFrame++;
+        currentObjectFrame++;
         if(currentFrame >= maxFrame) {
             currentFrame = 0;
+        }
+        if(currentObjectFrame >= 4) {
+            currentObjectFrame = 0;
         }
     }
 
     setInterval(animateGlobal, 30);
-    setInterval(animatePlayerSprite, 100);
+    setInterval(animateSprites, 100);
 }
 
+// Credits to this guy for this one !
+// https://github.com/shubhamjain/penguin-walk
 function loadResources(imgPaths, whenLoaded)
 {
 	var imgs = {}, imgCounter = 0;
@@ -215,6 +255,12 @@ window.addEventListener('load', function(e) {
         "./assets/player/Biker_idle.png",
         "./assets/player/Biker_run.png",
         "./assets/player/Biker_run_L.png",
+        "./assets/objects/Pointer1.png",
+        "./assets/objects/Pointer2.png",
+        "./assets/objects/Fence1.png",
+        "./assets/objects/Fence2.png",
+        "./assets/objects/Fence3.png",
+        "./assets/objects/Screen2.png",
     ], initCanvas);
 });
 

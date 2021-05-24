@@ -22,3 +22,20 @@ body {
   align-self: center;
   justify-self: center;
 }
+
+#assets {
+  justify-self: center;
+  align-self: center;
+  color: #999;
+}
+
+#assets a:link,
+#assets a:visited {
+  text-decoration: none;
+  color: #999;
+}
+
+#assets a:hover {
+  text-decoration: underline;
+  color: #999;
+}

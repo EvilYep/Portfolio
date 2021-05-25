@@ -40,7 +40,17 @@ function checkHover(hitbox) {
     return false;
 }
 
-function checkCollision(xMin, xMax, yMin, yMax) {
+function checkCollision(hitbox) {
+    let playerHB = {
+        left: INITIAL_DISTANCE + 16,
+        right: INITIAL_DISTANCE + 102,
+        top: middleOfTheRoad - 210 +60
+    }
+    if(playerHB.top <= hitbox.yMax && 
+        ((playerHB.left >= hitbox.xMin && playerHB.left <= hitbox.xMax) || (playerHB.right >= hitbox.xMin && playerHB.right <= hitbox.xMax) ||
+        (playerHB.left <= hitbox.xMin && playerHB.right >= hitbox.xMax))) {
+        return true;
+    }
     return false;
 }
 
@@ -76,7 +86,7 @@ function drawInteractable(sprite, x, y, sx, sy, row) {
         yMin: cH - marginB - tileSize * (4 - row) + firstRow,
         yMax: cH - marginB - tileSize * (4 - row) + lastRow
     }
-    if(checkHover(hitbox) || checkCollision()) {
+    if(checkHover(hitbox) || checkCollision(hitbox)) {
         for(let i = 0; i < offsetArr.length; i += 2) {
             interactionMask.drawImage(sprite, x - thick + offsetArr[i]*thick, y - thick + offsetArr[i+1] * thick, sx + thick * 2, sy + thick * 2 - 2);
         }
@@ -94,7 +104,7 @@ function BackGround() {
     this.scaling = cW / 0.5;
     
     // Dark magic revolving around unusual background images resolutions and an initial idea of a fixed 'display' window size
-    // And since there's NO WAY I'm changing these sweets free assets, wud'ov tak' me yoars t'do doz, mate !.....
+    // And since there's NO WAY I'm changing these sweets free assets.....
     this.render = function() {
         ctx.drawImage(bg5, 0, 0);
         ctx.drawImage(bg4, this.x4-=(speed*1.2 + 0.2), 0, this.scaling, cH / 1.85);

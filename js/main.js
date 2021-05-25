@@ -8,13 +8,14 @@ let distance = INITIAL_DISTANCE;
 let offset = distance - INITIAL_DISTANCE;
 let tileSize = LEVEL_TILE_SIZES.LG;
 let bufferMaxSize = tileSize * COLS;
-
-let status = 'idle', facing = 'right';
-let speed = 0, maxFrame = 4, currentFrame = 0, currentObjectFrame = 0, middleOfTheRoad = 0;
-//let neededStuffIDontKnowHowToCall = Array.from(Array(ROWS), () => new Array(COLS));
+let requestId;
 let clickables = {};
 let xMouse = 0, yMouse = 0;
 let marginB = 0;
+let status = 'idle', facing = 'right';
+let speed = 0, maxFrame = 4, currentFrame = 0, currentObjectFrame = 0, middleOfTheRoad = 0;
+//let neededStuffIDontKnowHowToCall = Array.from(Array(ROWS), () => new Array(COLS));
+
 
 function checkUndesirableResizes() {
     tileSize = cH < 700 ? LEVEL_TILE_SIZES.SM : LEVEL_TILE_SIZES.LG;
@@ -33,33 +34,7 @@ function refreshSmoothies() {
     interactionMask.mozImageSmoothingEnabled = false, interactionMask.webkitImageSmoothingEnabled = false, interactionMask.msImageSmoothingEnabled = false, interactionMask.imageSmoothingEnabled = false;
 }
 
-function checkHover(hitbox) {
-    if(xMouse >= hitbox.xMin && xMouse <= hitbox.xMax && yMouse >= hitbox.yMin && yMouse <= hitbox.yMax) {
-        return true;
-    }
-    return false;
-}
-
-function checkCollision(hitbox) {
-    let playerHB = {
-        left: INITIAL_DISTANCE + 16,
-        right: INITIAL_DISTANCE + 102,
-        top: middleOfTheRoad - 210 +60
-    }
-    if(playerHB.top <= hitbox.yMax && 
-        ((playerHB.left >= hitbox.xMin && playerHB.left <= hitbox.xMax) || (playerHB.right >= hitbox.xMin && playerHB.right <= hitbox.xMax) ||
-        (playerHB.left <= hitbox.xMin && playerHB.right >= hitbox.xMax))) {
-        return true;
-    }
-    return false;
-}
-
-function drawInteractable(sprite, x, y, sx, sy, row) {
-    let firstRow = sy, firstCol = sx, lastRow = 0, lastCol = 0, thick = 3;
-    let offsetArr = [-1,-1,0,-1,1,-1,-1,0,1,0,-1,1,0,1,1,1];
-    interactionMask.fillStyle = 'lime';
-
-    // great resource https://www.rgraph.net/canvas/reference/globalcompositeoperation.html
+function getHitbox(sprite, x, y, sx, sy) {
     interactionMask.drawImage(sprite, x, y, sx, sy);
     let imgData = interactionMask.getImageData(x, y, sx, sy);
     let pixels = imgData.data;
@@ -86,6 +61,37 @@ function drawInteractable(sprite, x, y, sx, sy, row) {
         yMin: cH - marginB - tileSize * (4 - row) + firstRow,
         yMax: cH - marginB - tileSize * (4 - row) + lastRow
     }
+}
+
+function checkHover(hitbox) {
+    if(xMouse >= hitbox.xMin && xMouse <= hitbox.xMax && yMouse >= hitbox.yMin && yMouse <= hitbox.yMax) {
+        return true;
+    }
+    return false;
+}
+
+function checkCollision(hitbox) {
+    let playerHB = {
+        left: INITIAL_DISTANCE + 16,
+        right: INITIAL_DISTANCE + 102,
+        top: middleOfTheRoad - 210 +60
+    }
+    if(playerHB.top <= hitbox.yMax && 
+        ((playerHB.left >= hitbox.xMin && playerHB.left <= hitbox.xMax) || (playerHB.right >= hitbox.xMin && playerHB.right <= hitbox.xMax) ||
+        (playerHB.left <= hitbox.xMin && playerHB.right >= hitbox.xMax))) {
+        return true;
+    }
+    return false;
+}
+
+function processInteractable(sprite, x, y, sx, sy, row) {
+    let firstRow = sy, firstCol = sx, lastRow = 0, lastCol = 0, thick = 3;
+    let offsetArr = [-1,-1,0,-1,1,-1,-1,0,1,0,-1,1,0,1,1,1];
+    interactionMask.fillStyle = 'lime';
+
+    getHitbox(sprite, x, y, sx, sy);
+    // great resource https://www.rgraph.net/canvas/reference/globalcompositeoperation.html
+    
     if(checkHover(hitbox) || checkCollision(hitbox)) {
         for(let i = 0; i < offsetArr.length; i += 2) {
             interactionMask.drawImage(sprite, x - thick + offsetArr[i]*thick, y - thick + offsetArr[i+1] * thick, sx + thick * 2, sy + thick * 2 - 2);
@@ -137,7 +143,7 @@ function ForeGround(resArray) {
                     buffer.drawImage(this.imgs.Pointer1, 0, 0, 32, 32, tileX, tileY + 5, tileSize - 10, tileSize - 10);
                 }
                 if (value == '?') {
-                    drawInteractable(this.imgs.Pointer2, tileX, tileY, tileSize, tileSize, i + 1);
+                    processInteractable(this.imgs.Pointer2, tileX, tileY, tileSize, tileSize, i + 1);
                     clickables['interrogationSign'] = [tileX, tileY];
                     
                     //neededStuffIDontKnowHowToCall[i][j] = value;
@@ -235,7 +241,7 @@ function initCanvas(resArray) {
     
     function animateGlobal() {
         setTimeout(function() {
-            requestAnimationFrame(animateGlobal);
+            requestId = window.requestAnimationFrame(animateGlobal);
             ctx.save();
             ctx.clearRect(0, 0, cW, cH);
             resetCoords();
@@ -287,11 +293,23 @@ window.addEventListener('mousedown', function(e) {
     if(e.clientX < INITIAL_DISTANCE + 5 || e.clientX > INITIAL_DISTANCE +125) {
         INITIAL_DISTANCE - e.clientX > 0 ? run(-1) : run(1);
     }
-})
+});
 
 window.addEventListener('mouseup', function(e) {
     stop();
-})
+});
+
+window.onerror = function myErrorHandler(errorMsg, source, lineno, colno, error) {
+    console.log({attention:'Cette eurrer n\'est pas une eurrer sur le cyclimse. Le rendu du jeu a été stoppé. Veuillez vous rapprocher de votre réparateur de sites', 
+                 msg: errorMsg, 
+                 url: source,
+                 line: lineno,
+                 error: error});
+    if (requestId) {
+        window.cancelAnimationFrame(requestId);
+    }
+    return true;
+};
 
 // LET's GOOOOOOO !
 

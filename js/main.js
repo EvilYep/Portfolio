@@ -38,19 +38,32 @@ function getMousePos(canvas, e) {
 }
 
 function mask(sprite, x, y, sx, sy) {
+    
+    let firstRow = sy, firstCol = sx, lastRow = 0, lastCol = 0;
     interactionMask.drawImage(sprite, x, y, sx, sy);
     let imgData = interactionMask.getImageData(x, y, sx, sy);
     let pixels = imgData.data;
     interactionMask.clearRect(x, y, sx, sy);
+    //console.log(pixels.length);
     for (let i = 0; i < pixels.length; i += 4) {
         if(pixels[i+3] == 255) { // opaque pixel
-            pixels[i] = 50;
-            pixels[i+1] = 255;
-            pixels[i+2] = 30;
-            pixels[i+3] = 100;
+            if(firstRow > Math.floor(Math.floor((i + 1) / 4) / sx)) {
+                firstRow = Math.floor(Math.floor((i + 1) / 4) / sx);
+            }
+            if(firstCol > Math.floor(((i + 1) / 4)) % sx) {
+                firstCol = Math.floor(((i + 1) / 4)) % sx;
+            }
+            if(lastRow < Math.floor(Math.floor(i + 1) / 4) / sx) {
+                lastRow = Math.floor(Math.floor(i + 1) / 4) / sx;
+            }
+            if(lastCol < Math.floor((i + 1) / 4) % sx) {
+                lastCol = Math.floor((i + 1) / 4) % sx;
+            }
         }
     }
+    //console.log(firstRow, firstCol, lastRow, lastCol);
     interactionMask.putImageData(imgData, x, y);
+    
 }
 
 function BackGround() {
@@ -92,9 +105,10 @@ function ForeGround(resArray) {
                     buffer.drawImage(this.imgs.Pointer1, 0, 0, 32, 32, tileX, tileY, tileSize - 10, tileSize - 10);
                 }
                 if (value == '?') {
-                    buffer.drawImage(this.imgs.Pointer2, 0, 0, 32, 32, tileX, tileY, tileSize - 5, tileSize - 5);
-                    clickables['interrogationSign'] = [tileX, tileY];
+                    //buffer.drawImage(this.imgs.Pointer2, 0, 0, 32, 32, tileX, tileY, tileSize - 5, tileSize - 5);
                     mask(this.imgs.Pointer2, tileX, tileY, tileSize - 5, tileSize - 5);
+                    clickables['interrogationSign'] = [tileX, tileY];
+                    
                     //neededStuffIDontKnowHowToCall[i][j] = value;
                 }
                 if (value == '<') {
@@ -114,6 +128,9 @@ function ForeGround(resArray) {
         }        
         ctx.drawImage(buffer.canvas, distance - INITIAL_DISTANCE, buffer.canvas.height - cH, cW, cH, 0, -this.marginB, cW, cH);
         ctx.drawImage(interactionMask.canvas, distance - INITIAL_DISTANCE, buffer.canvas.height - cH, cW, cH, 0, -this.marginB, cW, cH);
+        ctx.fillRect(560,180,135,135);
+        ctx.fillStyle = 'green';
+        ctx.fillRect(595, 205, 62, 109);
     }
 }
 
@@ -184,28 +201,31 @@ function initCanvas(resArray) {
     let background = new BackGround();
     let foreground = new ForeGround(resArray);
     let player = new Player(resArray);
-
+    
     function animateGlobal() {
-        ctx.save();
-        ctx.clearRect(0, 0, cW, cH);
-        resetCoords();
-        checkUndesirableResizes();
-        ctx.canvas.width = cW;
-        ctx.canvas.height = cH;
+        setTimeout(function() {
+            requestAnimationFrame(animateGlobal);
+            ctx.save();
+            ctx.clearRect(0, 0, cW, cH);
+            resetCoords();
+            checkUndesirableResizes();
+            ctx.canvas.width = cW;
+            ctx.canvas.height = cH;
 
-        background.render();
-        foreground.render();
-        player.render();
- 
-        speed != 0 ? distance = distance + (Math.sign(speed)*6) : distance;
-        if(distance < INITIAL_DISTANCE) {
-            runAwayYouFools(1);
-        }
-        if(distance >= bufferMaxSize) {
-            runAwayYouFools(-1);
-        }
+            background.render();
+            foreground.render();
+            player.render();
+    
+            speed != 0 ? distance = distance + (Math.sign(speed)*6) : distance;
+            if(distance < INITIAL_DISTANCE) {
+                runAwayYouFools(1);
+            }
+            if(distance >= bufferMaxSize) {
+                runAwayYouFools(-1);
+            }
 
-        ctx.restore();
+            ctx.restore();
+        }, 1000 / FPS)
     }
 
     function animateSprites() {
@@ -214,8 +234,8 @@ function initCanvas(resArray) {
         currentObjectFrame = currentObjectFrame >= 4 ? 0 : currentObjectFrame  
     }
 
-    setInterval(animateGlobal, 30);
     setInterval(animateSprites, 150);
+    animateGlobal();
 }
 
 // CONTROLS
@@ -231,8 +251,10 @@ gameWindow.addEventListener('click', function(e) {
 });gameWindow
 
 window.addEventListener('mousedown', function(e) {
-    console.log(clickables);
-    INITIAL_DISTANCE - e.clientX > 0 ? run(-1) : run(1);
+    if(e.clientX < INITIAL_DISTANCE + 5 || e.clientX > INITIAL_DISTANCE +125) {
+        INITIAL_DISTANCE - e.clientX > 0 ? run(-1) : run(1);
+    }
+    
 })
 
 window.addEventListener('mouseup', function(e) {

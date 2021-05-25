@@ -12,6 +12,7 @@ bg4.src = "./assets/bg/2.png";
 bg5.src = "./assets/bg/1.png";
 road.src = "./assets/bg/road.png";
 
+const FPS = 60;
 const KEYS = {
 	LEFT: KEY_CODES.LEFT,
 	RIGHT: KEY_CODES.RIGHT,

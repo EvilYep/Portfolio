@@ -1,26 +1,56 @@
-let ctx = document.getElementById('my-canvas').getContext('2d');
+let gameWindow = document.getElementById('my-canvas');
+let ctx = gameWindow.getContext('2d');
 let buffer = document.createElement("canvas").getContext('2d');
-let cW = document.documentElement.clientWidth - GLOBAL_MARGIN;
-let cH = document.documentElement.clientHeight - GLOBAL_MARGIN;
+let interactionMask = document.createElement("canvas").getContext('2d');
+let cW = document.documentElement.clientWidth;
+let cH = document.documentElement.clientHeight;
 let distance = INITIAL_DISTANCE;
 let tileSize = LEVEL_TILE_SIZES.LG;
 let bufferMaxSize = tileSize * COLS;
 
 let status = 'idle', facing = 'right';
 let speed = 0, maxFrame = 4, currentFrame = 0, currentObjectFrame = 0, middleOfTheRoad = 0;
+let neededStuffIDontKnowHowToCall = Array.from(Array(ROWS), () => new Array(COLS));
+let clickables = {};
+let spriteMask = new ImageData(1,1);
 
 function checkUndesirableResizes() {
     tileSize = cH < 700 ? LEVEL_TILE_SIZES.SM : LEVEL_TILE_SIZES.LG;
 }
 
 function resetCoords() {
-    cW = document.documentElement.clientWidth - GLOBAL_MARGIN;
-    cH = document.documentElement.clientHeight - GLOBAL_MARGIN;
+    cW = document.documentElement.clientWidth;
+    cH = document.documentElement.clientHeight;
 }
 
 function refreshSmoothies() {
     ctx.mozImageSmoothingEnabled = false, ctx.webkitImageSmoothingEnabled = false, ctx.msImageSmoothingEnabled = false, ctx.imageSmoothingEnabled = false;
     buffer.mozImageSmoothingEnabled = false, buffer.webkitImageSmoothingEnabled = false, buffer.msImageSmoothingEnabled = false, buffer.imageSmoothingEnabled = false;
+    interactionMask.mozImageSmoothingEnabled = false, interactionMask.webkitImageSmoothingEnabled = false, interactionMask.msImageSmoothingEnabled = false, interactionMask.imageSmoothingEnabled = false;
+}
+
+function getMousePos(canvas, e) {
+    let rect = canvas.getBoundingClientRect();
+    return {
+        x: (e.clientX - rect.left) / (rect.right - rect.left) * canvas.width,
+        y: (e.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height
+    };
+}
+
+function mask(sprite, x, y, sx, sy) {
+    interactionMask.drawImage(sprite, x, y, sx, sy);
+    let imgData = interactionMask.getImageData(x, y, sx, sy);
+    let pixels = imgData.data;
+    interactionMask.clearRect(x, y, sx, sy);
+    for (let i = 0; i < pixels.length; i += 4) {
+        if(pixels[i+3] == 255) { // opaque pixel
+            pixels[i] = 50;
+            pixels[i+1] = 255;
+            pixels[i+2] = 30;
+            pixels[i+3] = 100;
+        }
+    }
+    interactionMask.putImageData(imgData, x, y);
 }
 
 function BackGround() {
@@ -31,11 +61,13 @@ function BackGround() {
     // And since there's NO WAY I'm changing these sweets free assets, wud'ov tak' me yoars t'do doz, mate !.....
     this.render = function() {
         ctx.drawImage(bg5, 0, 0);
-        ctx.drawImage(bg4, this.x4-=speed*1.2, 0, this.scaling, cH / 1.85);
+        ctx.drawImage(bg4, this.x4-=(speed*1.2 + 0.2), 0, this.scaling, cH / 1.85);
         ctx.drawImage(bg3, this.x3-=(speed*2), cH / 12, this.scaling, cH / 1.85);
         ctx.drawImage(bg2, this.x2-=(speed*2.5), cH / 8, this.scaling, cH / 1.85);
         ctx.drawImage(bg, this.x-=(speed*3), cH / 6.3, this.scaling * 1.1, cH / 1.85);
         ctx.drawImage(road, this.xRoad-=(speed*6), cH / 1.48, cW * 7, cH / 3);
+
+        if(this.x4 <= -(this.scaling/3 - 1)) { this.x4 = 0; }
     }
 }
 
@@ -46,33 +78,42 @@ function ForeGround(resArray) {
     this.render = function() {
         buffer.canvas.width = tileSize * COLS;
         buffer.canvas.height = tileSize * ROWS;
+        interactionMask.canvas.width = buffer.canvas.width;
+        interactionMask.canvas.height = buffer.canvas.height;
         
-        for (let i = 0; i < levelLayout.length; i++) {
-            refreshSmoothies();
-            let value = levelLayout[i];
-            let tile_x = (i % COLS) * tileSize;
-            let tile_y = Math.floor(i / COLS) * tileSize;
+        for (let i = 0; i < ROWS; i++) {
+            for (let j = 0; j < COLS; j++) {
+                refreshSmoothies();
+                let value = levelLayout[i][j];
+                let tileX = j * tileSize;
+                let tileY = i * tileSize;
 
-            if(value == '!') {
-                buffer.drawImage(this.imgs.Pointer1, 0, 0, 32, 32, tile_x, tile_y, tileSize - 10, tileSize - 10);
+                if(value == '!') {
+                    buffer.drawImage(this.imgs.Pointer1, 0, 0, 32, 32, tileX, tileY, tileSize - 10, tileSize - 10);
+                }
+                if (value == '?') {
+                    buffer.drawImage(this.imgs.Pointer2, 0, 0, 32, 32, tileX, tileY, tileSize - 5, tileSize - 5);
+                    clickables['interrogationSign'] = [tileX, tileY];
+                    mask(this.imgs.Pointer2, tileX, tileY, tileSize - 5, tileSize - 5);
+                    //neededStuffIDontKnowHowToCall[i][j] = value;
+                }
+                if (value == '<') {
+                    buffer.drawImage(this.imgs.Fence1, 0, 0, 32, 32, tileX, tileY, tileSize, tileSize);
+                }
+                if (value == 'T') {
+                    buffer.drawImage(this.imgs.Fence2, 0, 0, 32, 32, tileX, tileY, tileSize, tileSize);
+                }
+                if (value == '>') {
+                    buffer.drawImage(this.imgs.Fence3, 0, 0, 32, 32, tileX, tileY, tileSize, tileSize);
+                }
+                if (value == 'P') {
+                    buffer.drawImage(this.imgs.Screen2, currentObjectFrame * 32, 0, 32, 42, tileX, tileY - 5, tileSize - 40, tileSize);
+                }
             }
-            if (value == '?') {
-                buffer.drawImage(this.imgs.Pointer2, 0, 0, 32, 32, tile_x, tile_y, tileSize - 5, tileSize - 5);
-            }
-            if (value == '<') {
-                buffer.drawImage(this.imgs.Fence1, 0, 0, 32, 32, tile_x, tile_y, tileSize, tileSize);
-            }
-            if (value == 'T') {
-                buffer.drawImage(this.imgs.Fence2, 0, 0, 32, 32, tile_x, tile_y, tileSize, tileSize);
-            }
-            if (value == '>') {
-                buffer.drawImage(this.imgs.Fence3, 0, 0, 32, 32, tile_x, tile_y, tileSize, tileSize);
-            }
-            if (value == 'P') {
-                buffer.drawImage(this.imgs.Screen2, currentObjectFrame * 32, 0, 32, 42, tile_x, tile_y - 5, tileSize - 40, tileSize);
-            }
+            
         }        
         ctx.drawImage(buffer.canvas, distance - INITIAL_DISTANCE, buffer.canvas.height - cH, cW, cH, 0, -this.marginB, cW, cH);
+        ctx.drawImage(interactionMask.canvas, distance - INITIAL_DISTANCE, buffer.canvas.height - cH, cW, cH, 0, -this.marginB, cW, cH);
     }
 }
 
@@ -177,6 +218,27 @@ function initCanvas(resArray) {
     setInterval(animateSprites, 150);
 }
 
+// CONTROLS
+
+gameWindow.addEventListener('mouseover', function(e) {
+    let x = e.pageX, y = e.pageY;
+});
+
+gameWindow.addEventListener('click', function(e) {
+    let x = getMousePos(gameWindow, e).x, y = getMousePos(gameWindow, e).y;
+    console.log(x, y);
+    console.log(clickables.interrogationSign);
+});gameWindow
+
+window.addEventListener('mousedown', function(e) {
+    console.log(clickables);
+    INITIAL_DISTANCE - e.clientX > 0 ? run(-1) : run(1);
+})
+
+window.addEventListener('mouseup', function(e) {
+    stop();
+})
+
 // LET's GOOOOOOO !
 
 window.addEventListener('load', function(e) {
@@ -188,11 +250,3 @@ window.addEventListener('load', function(e) {
         "./assets/objects/Screen2.png",
     ], initCanvas);
 });
-
-window.addEventListener('mousedown', function(e) {
-    INITIAL_DISTANCE - e.clientX > 0 ? run(-1) : run(1);
-})
-
-window.addEventListener('mouseup', function(e) {
-    stop();
-})

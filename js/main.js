@@ -5,14 +5,16 @@ let interactionMask = document.createElement("canvas").getContext('2d');
 let cW = document.documentElement.clientWidth;
 let cH = document.documentElement.clientHeight;
 let distance = INITIAL_DISTANCE;
+let offset = distance - INITIAL_DISTANCE;
 let tileSize = LEVEL_TILE_SIZES.LG;
 let bufferMaxSize = tileSize * COLS;
 
 let status = 'idle', facing = 'right';
 let speed = 0, maxFrame = 4, currentFrame = 0, currentObjectFrame = 0, middleOfTheRoad = 0;
-let neededStuffIDontKnowHowToCall = Array.from(Array(ROWS), () => new Array(COLS));
+//let neededStuffIDontKnowHowToCall = Array.from(Array(ROWS), () => new Array(COLS));
 let clickables = {};
-let spriteMask = new ImageData(1,1);
+let xMouse = 0, yMouse = 0;
+let marginB = 0;
 
 function checkUndesirableResizes() {
     tileSize = cH < 700 ? LEVEL_TILE_SIZES.SM : LEVEL_TILE_SIZES.LG;
@@ -21,6 +23,8 @@ function checkUndesirableResizes() {
 function resetCoords() {
     cW = document.documentElement.clientWidth;
     cH = document.documentElement.clientHeight;
+    marginB = 2/100 * cH;
+    offset = distance - INITIAL_DISTANCE;
 }
 
 function refreshSmoothies() {
@@ -29,29 +33,34 @@ function refreshSmoothies() {
     interactionMask.mozImageSmoothingEnabled = false, interactionMask.webkitImageSmoothingEnabled = false, interactionMask.msImageSmoothingEnabled = false, interactionMask.imageSmoothingEnabled = false;
 }
 
-function getMousePos(canvas, e) {
-    let rect = canvas.getBoundingClientRect();
-    return {
-        x: (e.clientX - rect.left) / (rect.right - rect.left) * canvas.width,
-        y: (e.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height
-    };
+function checkHover(hitbox) {
+    if(xMouse >= hitbox.xMin && xMouse <= hitbox.xMax && yMouse >= hitbox.yMin && yMouse <= hitbox.yMax) {
+        return true;
+    }
+    return false;
 }
 
-function mask(sprite, x, y, sx, sy) {
-    
-    let firstRow = sy, firstCol = sx, lastRow = 0, lastCol = 0;
+function checkCollision(xMin, xMax, yMin, yMax) {
+    return false;
+}
+
+function drawInteractable(sprite, x, y, sx, sy, row) {
+    let firstRow = sy, firstCol = sx, lastRow = 0, lastCol = 0, thick = 3;
+    let offsetArr = [-1,-1,0,-1,1,-1,-1,0,1,0,-1,1,0,1,1,1];
+    interactionMask.fillStyle = 'lime';
+
+    // great resource https://www.rgraph.net/canvas/reference/globalcompositeoperation.html
     interactionMask.drawImage(sprite, x, y, sx, sy);
     let imgData = interactionMask.getImageData(x, y, sx, sy);
     let pixels = imgData.data;
-    interactionMask.clearRect(x, y, sx, sy);
-    //console.log(pixels.length);
+    
     for (let i = 0; i < pixels.length; i += 4) {
         if(pixels[i+3] == 255) { // opaque pixel
             if(firstRow > Math.floor(Math.floor((i + 1) / 4) / sx)) {
                 firstRow = Math.floor(Math.floor((i + 1) / 4) / sx);
             }
-            if(firstCol > Math.floor(((i + 1) / 4)) % sx) {
-                firstCol = Math.floor(((i + 1) / 4)) % sx;
+            if(firstCol > Math.floor((i + 1) / 4) % sx) {
+                firstCol = Math.floor((i + 1) / 4) % sx;
             }
             if(lastRow < Math.floor(Math.floor(i + 1) / 4) / sx) {
                 lastRow = Math.floor(Math.floor(i + 1) / 4) / sx;
@@ -61,9 +70,23 @@ function mask(sprite, x, y, sx, sy) {
             }
         }
     }
-    //console.log(firstRow, firstCol, lastRow, lastCol);
-    interactionMask.putImageData(imgData, x, y);
-    
+    let hitbox = {
+        xMin: x + firstCol - offset,
+        xMax: x + lastCol - offset,
+        yMin: cH - marginB - tileSize * (4 - row) + firstRow,
+        yMax: cH - marginB - tileSize * (4 - row) + lastRow
+    }
+    if(checkHover(hitbox) || checkCollision()) {
+        for(let i = 0; i < offsetArr.length; i += 2) {
+            interactionMask.drawImage(sprite, x - thick + offsetArr[i]*thick, y - thick + offsetArr[i+1] * thick, sx + thick * 2, sy + thick * 2 - 2);
+        }
+        
+        interactionMask.globalCompositeOperation = 'source-in';
+        interactionMask.fillRect(x, y, sx + thick * 2, sy + thick * 2);
+        interactionMask.globalCompositeOperation = "source-over";
+    } 
+
+    interactionMask.drawImage(sprite, x, y, sx, sy);
 }
 
 function BackGround() {
@@ -85,8 +108,7 @@ function BackGround() {
 }
 
 function ForeGround(resArray) {
-    this.imgs = resArray;
-    this.marginB = 2/100 * cH; 
+    this.imgs = resArray; 
     
     this.render = function() {
         buffer.canvas.width = tileSize * COLS;
@@ -102,11 +124,10 @@ function ForeGround(resArray) {
                 let tileY = i * tileSize;
 
                 if(value == '!') {
-                    buffer.drawImage(this.imgs.Pointer1, 0, 0, 32, 32, tileX, tileY, tileSize - 10, tileSize - 10);
+                    buffer.drawImage(this.imgs.Pointer1, 0, 0, 32, 32, tileX, tileY + 5, tileSize - 10, tileSize - 10);
                 }
                 if (value == '?') {
-                    //buffer.drawImage(this.imgs.Pointer2, 0, 0, 32, 32, tileX, tileY, tileSize - 5, tileSize - 5);
-                    mask(this.imgs.Pointer2, tileX, tileY, tileSize - 5, tileSize - 5);
+                    drawInteractable(this.imgs.Pointer2, tileX, tileY, tileSize, tileSize, i + 1);
                     clickables['interrogationSign'] = [tileX, tileY];
                     
                     //neededStuffIDontKnowHowToCall[i][j] = value;
@@ -123,14 +144,14 @@ function ForeGround(resArray) {
                 if (value == 'P') {
                     buffer.drawImage(this.imgs.Screen2, currentObjectFrame * 32, 0, 32, 42, tileX, tileY - 5, tileSize - 40, tileSize);
                 }
+                /* if (value == 0) {
+                    interactionMask.fillRect(tileX, tileY, tileSize, tileSize);
+                } */
             }
             
         }        
-        ctx.drawImage(buffer.canvas, distance - INITIAL_DISTANCE, buffer.canvas.height - cH, cW, cH, 0, -this.marginB, cW, cH);
-        ctx.drawImage(interactionMask.canvas, distance - INITIAL_DISTANCE, buffer.canvas.height - cH, cW, cH, 0, -this.marginB, cW, cH);
-        ctx.fillRect(560,180,135,135);
-        ctx.fillStyle = 'green';
-        ctx.fillRect(595, 205, 62, 109);
+        ctx.drawImage(buffer.canvas, offset-=(speed*6), buffer.canvas.height - cH, cW, cH, 0, -marginB, cW, cH);
+        ctx.drawImage(interactionMask.canvas, offset-=(speed*6), buffer.canvas.height - cH, cW, cH, 0, -marginB, cW, cH);
     }
 }
 
@@ -240,13 +261,15 @@ function initCanvas(resArray) {
 
 // CONTROLS
 
-gameWindow.addEventListener('mouseover', function(e) {
-    let x = e.pageX, y = e.pageY;
+gameWindow.addEventListener('mousemove', function(e) {
+    setTimeout(function() {
+        xMouse = e.pageX;
+        yMouse = e.pageY;
+    }, 1000 / FPS)
 });
 
 gameWindow.addEventListener('click', function(e) {
-    let x = getMousePos(gameWindow, e).x, y = getMousePos(gameWindow, e).y;
-    console.log(x, y);
+    console.log('pageX : ', e.pageX, e.pageY , xMouse, yMouse);
     console.log(clickables.interrogationSign);
 });gameWindow
 
@@ -254,7 +277,6 @@ window.addEventListener('mousedown', function(e) {
     if(e.clientX < INITIAL_DISTANCE + 5 || e.clientX > INITIAL_DISTANCE +125) {
         INITIAL_DISTANCE - e.clientX > 0 ? run(-1) : run(1);
     }
-    
 })
 
 window.addEventListener('mouseup', function(e) {

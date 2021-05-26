@@ -1,3 +1,5 @@
+import { SpriteEngine } from './SpriteEngine.js';
+
 let gameWindow = document.getElementById('my-canvas');
 let ctx = gameWindow.getContext('2d');
 let buffer = document.createElement("canvas").getContext('2d');
@@ -14,8 +16,7 @@ let xMouse = 0, yMouse = 0;
 let marginB = 0;
 let status = 'idle', facing = 'right';
 let speed = 0, maxFrame = 4, currentFrame = 0, currentObjectFrame = 0, middleOfTheRoad = 0;
-//let neededStuffIDontKnowHowToCall = Array.from(Array(ROWS), () => new Array(COLS));
-
+//let levelMap = Array.from(Array(ROWS), () => new Array(COLS));
 
 function checkUndesirableResizes() {
     tileSize = cH < 700 ? LEVEL_TILE_SIZES.SM : LEVEL_TILE_SIZES.LG;
@@ -29,13 +30,15 @@ function resetCoords() {
 }
 
 function refreshSmoothies() {
-    ctx.mozImageSmoothingEnabled = false, ctx.webkitImageSmoothingEnabled = false, ctx.msImageSmoothingEnabled = false, ctx.imageSmoothingEnabled = false;
-    buffer.mozImageSmoothingEnabled = false, buffer.webkitImageSmoothingEnabled = false, buffer.msImageSmoothingEnabled = false, buffer.imageSmoothingEnabled = false;
-    interactionMask.mozImageSmoothingEnabled = false, interactionMask.webkitImageSmoothingEnabled = false, interactionMask.msImageSmoothingEnabled = false, interactionMask.imageSmoothingEnabled = false;
+    ctx.webkitImageSmoothingEnabled = false, ctx.msImageSmoothingEnabled = false, ctx.imageSmoothingEnabled = false;
+    buffer.webkitImageSmoothingEnabled = false, buffer.msImageSmoothingEnabled = false, buffer.imageSmoothingEnabled = false;
+    interactionMask.webkitImageSmoothingEnabled = false, interactionMask.msImageSmoothingEnabled = false, interactionMask.imageSmoothingEnabled = false;
 }
 
-function getHitbox(sprite, x, y, sx, sy) {
-    interactionMask.drawImage(sprite, x, y, sx, sy);
+function getHitbox(sprite, frame, z, cx, cy, x, y, sx, sy, row) {
+    let firstRow = sy, firstCol = sx, lastRow = 0, lastCol = 0;
+
+    interactionMask.drawImage(sprite, frame, z, cx, cy, x, y, sx, sy);
     let imgData = interactionMask.getImageData(x, y, sx, sy);
     let pixels = imgData.data;
     
@@ -61,6 +64,7 @@ function getHitbox(sprite, x, y, sx, sy) {
         yMin: cH - marginB - tileSize * (4 - row) + firstRow,
         yMax: cH - marginB - tileSize * (4 - row) + lastRow
     }
+    return hitbox;
 }
 
 function checkHover(hitbox) {
@@ -84,28 +88,31 @@ function checkCollision(hitbox) {
     return false;
 }
 
-function processInteractable(sprite, x, y, sx, sy, row) {
-    let firstRow = sy, firstCol = sx, lastRow = 0, lastCol = 0, thick = 3;
+function processInteractable(sprite, frame, z, cx, cy, x, y, sx, sy, row) {
     let offsetArr = [-1,-1,0,-1,1,-1,-1,0,1,0,-1,1,0,1,1,1];
+    let hitbox = {}; 
+    let thick = 2.5;
     interactionMask.fillStyle = 'lime';
 
-    getHitbox(sprite, x, y, sx, sy);
+    hitbox = getHitbox(sprite, frame, z, cx, cy, x, y, sx, sy, row);
     // great resource https://www.rgraph.net/canvas/reference/globalcompositeoperation.html
     
     if(checkHover(hitbox) || checkCollision(hitbox)) {
         for(let i = 0; i < offsetArr.length; i += 2) {
-            interactionMask.drawImage(sprite, x - thick + offsetArr[i]*thick, y - thick + offsetArr[i+1] * thick, sx + thick * 2, sy + thick * 2 - 2);
+            interactionMask.drawImage(sprite, frame, z, cx, cy, x - thick + offsetArr[i]*thick, y - thick + offsetArr[i+1] * thick, sx + thick * 2, sy + thick * 2 - 2);
         }
         
-        interactionMask.globalCompositeOperation = 'source-in';
+        interactionMask.globalCompositeOperation = 'source-atop';
         interactionMask.fillRect(x, y, sx + thick * 2, sy + thick * 2);
         interactionMask.globalCompositeOperation = "source-over";
     } 
 
-    interactionMask.drawImage(sprite, x, y, sx, sy);
+    interactionMask.drawImage(sprite, frame, z, cx, cy, x, y, sx, sy);
 }
 
 function BackGround() {
+    console.timeLog('answer time');
+    console.log('Background Renderer® launched');
     this.x = 0, this.x2 = 0, this.x3 = 0, this.x4 = 0, this.xRoad = 0, this.y = 0; 
     this.scaling = cW / 0.5;
     
@@ -113,18 +120,35 @@ function BackGround() {
     // And since there's NO WAY I'm changing these sweets free assets.....
     this.render = function() {
         ctx.drawImage(bg5, 0, 0);
-        ctx.drawImage(bg4, this.x4-=(speed*1.2 + 0.2), 0, this.scaling, cH / 1.85);
-        ctx.drawImage(bg3, this.x3-=(speed*2), cH / 12, this.scaling, cH / 1.85);
-        ctx.drawImage(bg2, this.x2-=(speed*2.5), cH / 8, this.scaling, cH / 1.85);
-        ctx.drawImage(bg, this.x-=(speed*3), cH / 6.3, this.scaling * 1.1, cH / 1.85);
-        ctx.drawImage(road, this.xRoad-=(speed*6), cH / 1.48, cW * 7, cH / 3);
+        ctx.drawImage(bg4, this.x4 -= (speed * 1.2 + 0.2), 0, this.scaling, cH / 1.85);
+        ctx.drawImage(bg3, this.x3 -= (speed * 2), cH / 12, this.scaling, cH / 1.85);
+        ctx.drawImage(bg2, this.x2 -= (speed * 2.5), cH / 8, this.scaling, cH / 1.85);
+        ctx.drawImage(bg, this.x -= (speed * 3), cH / 6.3, this.scaling * 1.1, cH / 1.85);
+        ctx.drawImage(road, this.xRoad -= (speed * 6), cH / 1.48, cW * 7, cH / 3);
 
         if(this.x4 <= -(this.scaling/3 - 1)) { this.x4 = 0; }
     }
 }
 
 function ForeGround(resArray) {
+    console.timeLog('answer time');
+    console.log('Foreground Renderer® catapulted');
     this.imgs = resArray; 
+    let spriteEngine = new SpriteEngine();
+
+/*     for (let i = 0; i < ROWS; i++) {
+        for (let j = 0; j < COLS; j++) {
+            let value = levelLayout[i][j];
+            levelMap[i][j] = value;
+
+            if (value == '?') {
+                
+            }
+            if (value == 'P') {
+                eP = new spriteEngine(4);
+            }
+        }
+    } */
     
     this.render = function() {
         buffer.canvas.width = tileSize * COLS;
@@ -143,9 +167,8 @@ function ForeGround(resArray) {
                     buffer.drawImage(this.imgs.Pointer1, 0, 0, 32, 32, tileX, tileY + 5, tileSize - 10, tileSize - 10);
                 }
                 if (value == '?') {
-                    processInteractable(this.imgs.Pointer2, tileX, tileY, tileSize, tileSize, i + 1);
+                    processInteractable(this.imgs.Pointer2, 0, 0, 32, 32, tileX, tileY, tileSize, tileSize, i + 1);
                     clickables['interrogationSign'] = [tileX, tileY];
-                    
                     //neededStuffIDontKnowHowToCall[i][j] = value;
                 }
                 if (value == '<') {
@@ -158,7 +181,11 @@ function ForeGround(resArray) {
                     buffer.drawImage(this.imgs.Fence3, 0, 0, 32, 32, tileX, tileY, tileSize, tileSize);
                 }
                 if (value == 'P') {
-                    buffer.drawImage(this.imgs.Screen2, currentObjectFrame * 32, 0, 32, 42, tileX, tileY - 5, tileSize - 40, tileSize);
+                    processInteractable(this.imgs.Screen2, (spriteEngine.getFrame() % 4) * 32, 0, 32, 42, tileX, tileY - 5, tileSize - 40, tileSize, i + 1);
+                }
+                if (value == 'H') {
+                    buffer.drawImage(this.imgs.Platform, (spriteEngine.getFrame() % 8) * 32, 0, 32, 32, tileX, tileY, tileSize - 20, tileSize - 20);
+
                 }
                 /* if (value == 0) {
                     interactionMask.fillRect(tileX, tileY, tileSize, tileSize);
@@ -172,6 +199,8 @@ function ForeGround(resArray) {
 }
 
 function Player(resArray) {
+    console.timeLog('answer time');
+    console.log('Player Renderer® unleashed');
     this.imgs = resArray;
 
     this.render = function() {
@@ -193,6 +222,7 @@ function Player(resArray) {
         }
         ctx.drawImage(this.sprite, currentFrame * DUDES_TILE_SIZE, 0, DUDES_TILE_SIZE, DUDES_TILE_SIZE, INITIAL_DISTANCE, middleOfTheRoad - 210, 210, 210);
     }
+    console.timeEnd('answer time');
 }
 
 function run(direction) {
@@ -227,7 +257,7 @@ function loadResources(imgPaths, whenLoaded) {
 		img.onload = function(){
 			imgs[fileName] = img;
 			imgCounter++;
-			imgPaths.length == imgCounter ? whenLoaded(imgs) : console.log('tremendous loading time...');	
+			imgPaths.length == imgCounter ? whenLoaded(imgs) : console.log('suspenseful loading time...');	
 		};
 	});
 }
@@ -252,6 +282,7 @@ function initCanvas(resArray) {
             background.render();
             foreground.render();
             player.render();
+            
     
             speed != 0 ? distance = distance + (Math.sign(speed)*6) : distance;
             if(distance < INITIAL_DISTANCE) {
@@ -266,44 +297,46 @@ function initCanvas(resArray) {
     }
 
     function animateSprites() {
+        
         currentFrame++, currentObjectFrame++;
         currentFrame = currentFrame >= maxFrame ? 0 : currentFrame;
         currentObjectFrame = currentObjectFrame >= 4 ? 0 : currentObjectFrame  
     }
 
     setInterval(animateSprites, 150);
+
     animateGlobal();
 }
 
 // CONTROLS
 
-gameWindow.addEventListener('mousemove', function(e) {
+gameWindow.onmousemove = (e) => {
     setTimeout(function() {
         xMouse = e.pageX;
         yMouse = e.pageY;
     }, 1000 / FPS)
-});
+};
 
-gameWindow.addEventListener('click', function(e) {
+gameWindow.onclick = (e) => {
     console.log('pageX : ', e.pageX, e.pageY , xMouse, yMouse);
     console.log(clickables.interrogationSign);
-});gameWindow
+};gameWindow
 
-window.addEventListener('mousedown', function(e) {
+window.onmousedown = (e) => {
     if(e.clientX < INITIAL_DISTANCE + 5 || e.clientX > INITIAL_DISTANCE +125) {
         INITIAL_DISTANCE - e.clientX > 0 ? run(-1) : run(1);
     }
-});
+};
 
-window.addEventListener('mouseup', function(e) {
+window.onmouseup = (e) => {
     stop();
-});
+};
 
-window.onerror = function myErrorHandler(errorMsg, source, lineno, colno, error) {
-    console.log({attention:'Cette eurrer n\'est pas une eurrer sur le cyclimse. Le rendu du jeu a été stoppé. Veuillez vous rapprocher de votre réparateur de sites', 
+window.onerror = (errorMsg, url, line, col, error) => {
+    console.log({attention:'Cette eurrer n\'est pas une eurrer sur le cyclimse. Veuillez vous rapprocher de votre réparateur de sites', 
                  msg: errorMsg, 
-                 url: source,
-                 line: lineno,
+                 url: url,
+                 line: line,
                  error: error});
     if (requestId) {
         window.cancelAnimationFrame(requestId);
@@ -314,11 +347,14 @@ window.onerror = function myErrorHandler(errorMsg, source, lineno, colno, error)
 // LET's GOOOOOOO !
 
 window.addEventListener('load', function(e) {
+    console.log('plugin controllers....');
+    console.log('Nuts Portfolio® game initiated');
+    console.time('answer time');
     loadResources([
         "./assets/bg/5.png", "./assets/bg/4.png", "./assets/bg/3.png", "./assets/bg/2.png", "./assets/bg/1.png", "./assets/bg/road.png",
         "./assets/player/Biker_hurt.png", "./assets/player/Biker_idle.png", "./assets/player/Biker_run.png", "./assets/player/Biker_run_L.png",
         "./assets/objects/Pointer1.png", "./assets/objects/Pointer2.png",
         "./assets/objects/Fence1.png", "./assets/objects/Fence2.png", "./assets/objects/Fence3.png",
-        "./assets/objects/Screen2.png",
+        "./assets/objects/Screen2.png", "./assets/objects/Platform.png"
     ], initCanvas);
 });

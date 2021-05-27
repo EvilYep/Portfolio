@@ -14,20 +14,14 @@ let xMouse = 0, yMouse = 0;
 let bufferMaxSize = tileSize * COLS;
 export let middleOfTheRoad = 0;
 export let offset = distance - INITIAL_DISTANCE;
-export let marginB = 0;
 export let cW = document.documentElement.clientWidth;
 export let cH = document.documentElement.clientHeight;
 export let speed = 0;
 //let levelMap = Array.from(Array(ROWS), () => new Array(COLS));
 
-function checkUndesirableResizes() {
-    tileSize = cH < 700 ? LEVEL_TILE_SIZES.SM : LEVEL_TILE_SIZES.LG;
-}
-
 function resetCoords() {
     cW = document.documentElement.clientWidth;
     cH = document.documentElement.clientHeight;
-    marginB = 2/100 * cH;
     offset = distance - INITIAL_DISTANCE;
 }
 
@@ -61,8 +55,8 @@ export function getHitbox(sprite, frame, z, cx, cy, x, y, sx, sy, row) {
     let hitbox = {
         xMin: x + firstCol - offset,
         xMax: x + lastCol - offset,
-        yMin: cH - marginB - tileSize * (4 - row) + firstRow,
-        yMax: cH - marginB - tileSize * (4 - row) + lastRow
+        yMin: cH - tileSize * (4 - row) + firstRow + 40,
+        yMax: cH - tileSize * (4 - row) + lastRow + 40
     }
     return hitbox;
 }
@@ -105,11 +99,11 @@ function loadResources(imgPaths, whenLoaded) {
 
 // MAIN LOOP FUNCTION
 
-function initCanvas(resArray) {
+function initCanvas(assets) {
     let spriteEngine = new SpriteEngine();
-    let background = new BackGround(resArray, ctx);
-    let foreground = new ForeGround(resArray, ctx, spriteEngine, buffer, interactionMask);
-    let player = new Player.Player(resArray, ctx, spriteEngine);
+    let background = new BackGround(assets, ctx);
+    let foreground = new ForeGround(assets, ctx, spriteEngine, buffer, interactionMask);
+    let player = new Player.Player(assets, ctx, spriteEngine);
     
     function animateGlobal() {
         setTimeout(function() {
@@ -117,7 +111,6 @@ function initCanvas(resArray) {
             ctx.save();
             ctx.clearRect(0, 0, cW, cH);
             resetCoords();
-            checkUndesirableResizes();
             ctx.canvas.width = cW;
             ctx.canvas.height = cH;
 
@@ -188,10 +181,12 @@ window.addEventListener('load', function(e) {
     console.log('Nuts Portfolio® game initiated');
     console.time('answer time');
     loadResources([
-        "./assets/bg/5.png", "./assets/bg/4.png", "./assets/bg/3.png", "./assets/bg/2.png", "./assets/bg/1.png", "./assets/bg/road.png",
+        "./assets/bg/bg5.png", "./assets/bg/bg4.png", "./assets/bg/bg3.png", "./assets/bg/bg2.png", "./assets/bg/bg1.png", "./assets/bg/road.png",
         "./assets/player/Biker_hurt.png", "./assets/player/Biker_idle.png", "./assets/player/Biker_run.png", "./assets/player/Biker_run_L.png",
+        "./assets/NPCS/Cyborg_idle.png", "./assets/NPCS/Cyborg_idle_L.png", "./assets/NPCS/Punk_idle.png", "./assets/NPCS/Punk_idle_L.png", 
         "./assets/objects/Pointer1.png", "./assets/objects/Pointer2.png",
-        "./assets/objects/Fence1.png", "./assets/objects/Fence2.png", "./assets/objects/Fence3.png",
-        "./assets/objects/Screen2.png", "./assets/objects/Platform.png", "./assets/objects/Newspaper.png",
+        "./assets/objects/Fence1.png", "./assets/objects/Fence2.png", "./assets/objects/Fence3.png","./assets/objects/Newspaper.png",
+        "./assets/objects/Screen2.png", "./assets/objects/Platform.png", "./assets/objects/Bottle1.png", "./assets/objects/Ladder.png",
+        "./assets/objects/Barrel1.png", "./assets/objects/Barrel2.png", "./assets/objects/Barrel3.png", "./assets/objects/Barrel4.png", 
     ], initCanvas);
 });

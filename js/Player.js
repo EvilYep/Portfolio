@@ -1,4 +1,4 @@
-import { refreshSmoothies, cH, middleOfTheRoad } from './main.js';
+import { refreshSmoothies, cH } from './main.js';
 
 let facing = RIGHT;
 let status = 'idle';
@@ -6,15 +6,15 @@ let currentFrame = 0;
 let maxFrame = 4;
 export let speed = 0;
 
-export function Player(resArray, ctx, spriteEngine) {
+export function Player(assets, ctx, spriteEngine) {
     console.timeLog('answer time');
     console.log('Player Renderer® unleashed');
-    this.imgs = resArray;
-    this.middle = middleOfTheRoad;
+    this.imgs = assets;
+    this.ground = cH - 200;
 
     this.render = function() {
         refreshSmoothies(ctx);
-        this.middle = (cH + (cH / 1.48)) / 2 ;
+        this.ground = cH - 175;
         switch(status) {
             case 'idle':
                 this.sprite = this.imgs.Biker_idle;
@@ -29,12 +29,12 @@ export function Player(resArray, ctx, spriteEngine) {
                 maxFrame = 4;
                 break;
         }
-        ctx.drawImage(this.sprite, (spriteEngine.getFrame() % maxFrame) * DUDES_TILE_SIZE, 0, DUDES_TILE_SIZE, DUDES_TILE_SIZE, INITIAL_DISTANCE, this.middle - 210, 210, 210);
-        ctx.fillRect(INITIAL_DISTANCE, this.middle, 210, 3);
-        ctx.fillRect(INITIAL_DISTANCE, this.middle - 213, 210, 3);
-        ctx.fillRect(INITIAL_DISTANCE + 210, this.middle - 210, 3, 210);
-        ctx.fillRect(INITIAL_DISTANCE, this.middle - 213 + 60, 210, 3);
-        ctx.fillRect(INITIAL_DISTANCE + 110, this.middle - 210, 3, 210);
+        ctx.drawImage(this.sprite, (spriteEngine.getFrame() % maxFrame) * DUDES_TILE_SIZE, 0, DUDES_TILE_SIZE, DUDES_TILE_SIZE, INITIAL_DISTANCE, this.ground - 210, 210, 210);
+/*         ctx.fillRect(INITIAL_DISTANCE, this.ground, 210, 3);
+        ctx.fillRect(INITIAL_DISTANCE, this.ground - 213, 210, 3);
+        ctx.fillRect(INITIAL_DISTANCE + 210, this.ground - 210, 3, 210);
+        ctx.fillRect(INITIAL_DISTANCE, this.ground - 213 + 60, 210, 3);
+        ctx.fillRect(INITIAL_DISTANCE + 110, this.ground - 210, 3, 210); */
     }
     console.timeEnd('answer time');
 }
@@ -43,7 +43,7 @@ export function run(direction) {
     status = 'running';
     currentFrame = 0;
 
-    
+
     speed = direction;
     facing = direction == LEFT ? 'left' : 'right'
     

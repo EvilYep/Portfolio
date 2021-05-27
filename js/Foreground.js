@@ -1,4 +1,4 @@
-import { refreshSmoothies, checkHover, checkCollision, getHitbox, tileSize, cW, cH, offset, speed, xMouse, yMouse } from './main.js';
+import { refreshSmoothies, checkHover, checkCollision, getHitbox, tileSize, cW, cH, offset, speed } from './main.js';
 
 export let highlight = 'bla';
 let lastHighlighted = 'bla';

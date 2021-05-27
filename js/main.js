@@ -2,6 +2,7 @@ import { SpriteEngine } from './SpriteEngine.js';
 import { BackGround } from './Background.js';
 import { ForeGround } from './Foreground.js';
 import * as Player from './Player.js';
+import { drawFPScounter } from './debug/FPScounter.js';
 
 let gameWindow = document.getElementById('my-canvas');
 let ctx = gameWindow.getContext('2d');
@@ -10,8 +11,8 @@ let interactionMask = document.createElement("canvas").getContext('2d');
 export let tileSize = LEVEL_TILE_SIZES.LG;
 let distance = INITIAL_DISTANCE;
 let requestId;
-export let xMouse = 0;
-export let yMouse = 0;
+let xMouse = 0;
+let yMouse = 0;
 let bufferMaxSize = tileSize * COLS;
 export let middleOfTheRoad = 0;
 export let offset = distance - INITIAL_DISTANCE;
@@ -57,9 +58,7 @@ export function getHitbox(sprite, frame, z, cx, cy, x, y, sx, sy, row) {
         xMin: x + firstCol - offset,
         xMax: x + lastCol - offset,
         yMin: (cH - interactionMask.canvas.height + y + firstRow),
-        yMax: (cH - interactionMask.canvas.height + y + lastRow),
-        firstRow: firstRow, 
-        firstCol: firstCol
+        yMax: (cH - interactionMask.canvas.height + y + lastRow)
     }
     return hitbox;
 }
@@ -108,6 +107,7 @@ function initCanvas(assets) {
     let foreground = new ForeGround(assets, ctx, spriteEngine, buffer, interactionMask);
     let player = new Player.Player(assets, ctx, spriteEngine);
     
+    
     function animateGlobal() {
         setTimeout(function() {
             requestId = window.requestAnimationFrame(animateGlobal);
@@ -129,6 +129,8 @@ function initCanvas(assets) {
             if(distance >= bufferMaxSize) {
                 Player.runAwayYouFools(LEFT);
             }
+
+            drawFPScounter(ctx);
 
             ctx.restore();
         }, 1000 / FPS)

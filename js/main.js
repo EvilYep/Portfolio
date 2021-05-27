@@ -10,7 +10,8 @@ let interactionMask = document.createElement("canvas").getContext('2d');
 export let tileSize = LEVEL_TILE_SIZES.LG;
 let distance = INITIAL_DISTANCE;
 let requestId;
-let xMouse = 0, yMouse = 0;
+export let xMouse = 0;
+export let yMouse = 0;
 let bufferMaxSize = tileSize * COLS;
 export let middleOfTheRoad = 0;
 export let offset = distance - INITIAL_DISTANCE;
@@ -55,8 +56,10 @@ export function getHitbox(sprite, frame, z, cx, cy, x, y, sx, sy, row) {
     let hitbox = {
         xMin: x + firstCol - offset,
         xMax: x + lastCol - offset,
-        yMin: cH - tileSize * (4 - row) + firstRow + 40,
-        yMax: cH - tileSize * (4 - row) + lastRow + 40
+        yMin: (cH - interactionMask.canvas.height + y + firstRow),
+        yMax: (cH - interactionMask.canvas.height + y + lastRow),
+        firstRow: firstRow, 
+        firstCol: firstCol
     }
     return hitbox;
 }

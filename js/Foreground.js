@@ -1,4 +1,4 @@
-import { refreshSmoothies, checkHover, checkCollision, getHitbox, tileSize, cW, cH, offset, speed } from './main.js';
+import { refreshSmoothies, checkHover, checkCollision, getHitbox, tileSize, cW, cH, offset, speed, xMouse, yMouse } from './main.js';
 
 export let highlight = 'bla';
 let lastHighlighted = 'bla';
@@ -38,10 +38,10 @@ export function ForeGround(assets, ctx, spriteEngine, buffer, interactionMask) {
                     buffer.drawImage(this.imgs.Barrel4, 0, 0, 18, 26, tileX, tileY + 90, 18*3.5, 26*3.5);
                 }
                 if(value == 'N') {
-                    drawInteractable(this.imgs.Newspaper, 0, 0, 53, 28, tileX, tileY + 110, 53*2, 28*2, i + 1, interactionMask);
+                    drawInteractable(this.imgs.Newspaper, 0, 0, 54, 29, tileX, tileY + 110, 54*2, 29*2, i + 1, interactionMask);
                 }
                 if(value == '!') {
-                    buffer.drawImage(this.imgs.Pointer1, 0, 0, 32, 32, tileX, tileY + 50, tileSize / 1.5 - 10, tileSize / 1.5 - 10);
+                    buffer.drawImage(this.imgs.Pointer1, 0, 0, 32, 32, tileX, tileY + 80, tileSize / 1.5 - 10, tileSize / 1.5 - 10);
                 }
                 if (value == '?') {
                     drawInteractable(this.imgs.Pointer2, 0, 0, 32, 32, tileX, tileY + 45, tileSize / 1.5, tileSize / 1.5, i + 1, interactionMask);
@@ -86,16 +86,17 @@ export function ForeGround(assets, ctx, spriteEngine, buffer, interactionMask) {
 
                 //uncomment to see grid
                 //for (let i = 0; i < ROWS; i++) {
-                //    interactionMask.fillRect(0, tileY * i - 1, cW * 3, 3);
+                //    buffer.fillRect(0, tileY * i - 1, cW * 3, 3);
                 //}
                 //for (let i = 0; i < COLS; i++) {
-                //    interactionMask.fillRect(tileX * i -1, 0, 3, cH * 3);
+                //    buffer.fillRect(tileX * i -1, 0, 3, cH * 3);
                 //}
             }
         }        
         ctx.drawImage(buffer.canvas, this.offset-=(speed*6), buffer.canvas.height - cH, cW, cH, 0, 0, cW, cH);
-        ctx.drawImage(interactionMask.canvas, this.offset-=(speed*6), buffer.canvas.height - cH, cW, cH, 0, 0, cW, cH);
-        /* ctx.fillStyle = 'red';       // uncommment to see INITIAL_DISTANCE
+        ctx.drawImage(interactionMask.canvas, this.offset-=(speed*6), interactionMask.canvas.height - cH, cW, cH, 0, 0, cW, cH);
+        // uncommment to see INITIAL_DISTANCE
+        /* ctx.fillStyle = 'red';       
         ctx.fillRect(INITIAL_DISTANCE - 2, 0, 4, cH); */
     }
 }
@@ -119,8 +120,9 @@ function drawInteractable(sprite, frame, z, cx, cy, x, y, sx, sy, row, ctx) {
         ctx.globalCompositeOperation = 'source-atop';
         ctx.fillRect(x, y, sx + thick * 2, sy + thick * 2);
         ctx.globalCompositeOperation = "source-over";
-        ctx.fillRect(hitbox.minX, hitbox.minY, 10, 10);
     } 
+    // un comment to see hitboxes
+    //ctx.fillRect(hitbox.xMin + offset, y + hitbox.firstRow, hitbox.xMax - hitbox.xMin, hitbox.yMax - hitbox.yMin);
 
     ctx.drawImage(sprite, frame, z, cx, cy, x, y, sx, sy);
 }

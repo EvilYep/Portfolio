@@ -1,15 +1,13 @@
-let lastCalledTime;
-let fps, delta;
+var times = [];
+let fps;
 
 export function drawFPScounter(ctx) {
-    if(!lastCalledTime) {
-        lastCalledTime = Date.now();
-        fps = 0;
-        return;
+    let now = performance.now();
+    while (times.length > 0 && times[0] <= now - 1000) {
+      times.shift();
     }
-    delta = (Date.now() - lastCalledTime)/1000;
-    lastCalledTime = Date.now();
-    fps = 1/delta;
+    times.push(now);
+    fps = times.length;
     ctx.font = '30px Arial';
-    ctx.fillText('FPS : ' + Math.round(fps * 100) / 100, 10, 50);
+    ctx.fillText('FPS : ' + Math.round(fps), 10, 50);
 }

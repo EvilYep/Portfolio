@@ -42,8 +42,6 @@ export function Player(assets, ctx, spriteEngine) {
 export function run(direction) {
     status = 'running';
     currentFrame = 0;
-
-
     speed = direction;
     facing = direction == LEFT ? 'left' : 'right'
     

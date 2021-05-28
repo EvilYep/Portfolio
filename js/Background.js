@@ -16,7 +16,7 @@ export function BackGround(assets, ctx) {
 
     this.render = function() {
         ctx.drawImage(this.imgs.bg1, 0, 0);
-        ctx.drawImage(this.imgs.bg2, this.x4 -= (speed * 1.2 + 0.2), cH - initH, this.scaling, 520);
+        ctx.drawImage(this.imgs.bg2, this.x4 -= (speed * 1.2 + 0.2), 0, this.scaling, 520);
         ctx.drawImage(this.imgs.bg3, this.x3 -= (speed * 2), cH - initH + 100, this.scaling, 520);
         ctx.drawImage(this.imgs.bg4, this.x2 -= (speed * 2.5), cH - initH + 170, this.scaling, 520);
         ctx.drawImage(this.imgs.bg5, this.x -= (speed * 3), cH - initH + 162, this.scaling * 1.1, 520);

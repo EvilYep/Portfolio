@@ -14,12 +14,24 @@ let requestId;
 let xMouse = 0;
 let yMouse = 0;
 let bufferMaxSize = tileSize * COLS;
+let lastRenderTime;
 export let middleOfTheRoad = 0;
 export let offset = distance - INITIAL_DISTANCE;
 export let cW = document.documentElement.clientWidth;
 export let cH = document.documentElement.clientHeight;
 export let speed = 0;
 //let levelMap = Array.from(Array(ROWS), () => new Array(COLS));
+let myRequestAnimationFrame =  window.requestAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame    ||
+            window.oRequestAnimationFrame      ||
+            window.msRequestAnimationFrame     ||
+            function(callback) {
+                setTimeout(callback, 1000 / FPS);
+            };
+window.requestAnimationFrame = myRequestAnimationFrame;
+const pxPerFrameAt60Hz = 6;
+const pxPerSecond = (pxPerFrameAt60Hz * 60);
 
 function resetCoords() {
     cW = document.documentElement.clientWidth;
@@ -84,6 +96,17 @@ export function checkCollision(hitbox) {
     return false;
 }
 
+function setPositions() {
+    speed = Player.speed;
+    speed != 0 ? distance = distance + (Math.sign(speed)*6) : distance;
+    if(distance < INITIAL_DISTANCE) {
+        Player.runAwayYouFools(RIGHT);
+    }
+    if(distance >= bufferMaxSize) {
+        Player.runAwayYouFools(LEFT);
+    }
+}
+
 // Credits to this guy for this one ! https://github.com/shubhamjain/penguin-walk
 function loadResources(imgPaths, whenLoaded) {
 	let imgs = {}, imgCounter = 0;
@@ -108,32 +131,34 @@ function initCanvas(assets) {
     let player = new Player.Player(assets, ctx, spriteEngine);
     
     
-    function animateGlobal() {
-        setTimeout(function() {
+    function animateGlobal(currentTime) {
+        requestId = window.requestAnimationFrame(animateGlobal);
+        // hack around requestAnimationFrame to fix inconsistencies between browsers https://stackoverflow.com/questions/66323325/canvas-is-drawing-with-inconsistent-speed-requestanimationframe
+        // https://mattperry.is/writing-code/browsers-may-throttle-requestanimationframe-to-30fps
+        if ((currentTime - lastRenderTime) / 1000 < 1 / FPS) {
+            return;
+        }
+        lastRenderTime = currentTime;
+
+        //ctx.save();
+        //ctx.clearRect(0, 0, cW, cH);
+        resetCoords();
+        ctx.canvas.width = cW;
+        ctx.canvas.height = cH;
+
+        background.render();
+        foreground.render();
+        player.render();
+        setPositions();
+
+        drawFPScounter(ctx);
+
+        //ctx.restore();
+
+        //setTimeout(animateGlobal, 1000 / FPS);
+/*         setTimeout(() => {
             requestId = window.requestAnimationFrame(animateGlobal);
-            ctx.save();
-            ctx.clearRect(0, 0, cW, cH);
-            resetCoords();
-            ctx.canvas.width = cW;
-            ctx.canvas.height = cH;
-
-            background.render();
-            foreground.render();
-            player.render();
-    
-            speed = Player.speed;
-            speed != 0 ? distance = distance + (Math.sign(speed)*6) : distance;
-            if(distance < INITIAL_DISTANCE) {
-                Player.runAwayYouFools(RIGHT);
-            }
-            if(distance >= bufferMaxSize) {
-                Player.runAwayYouFools(LEFT);
-            }
-
-            drawFPScounter(ctx);
-
-            ctx.restore();
-        }, 1000 / FPS)
+        }, 1000 / FPS); */
     }
 
     animateGlobal();

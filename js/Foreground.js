@@ -4,10 +4,11 @@ import { SpriteEngine } from './SpriteEngine.js';
 export let highlight = 'bla';
 let lastHighlighted = 'bla';
 
-export function ForeGround(assets, ctx, buffer, interactionMask) {
+export function ForeGround(assets, ctx, interactionMask) {
     this.imgs = assets; 
     this.offset = offset;
     this.spriteEngine = new SpriteEngine(false);
+    let buffer = document.createElement("canvas").getContext('2d');
 
     this.render = function() {
         buffer.canvas.width = tileSize * COLS;
@@ -85,8 +86,9 @@ export function ForeGround(assets, ctx, buffer, interactionMask) {
                 }
 
                 //uncomment to see grid
+                //ctx.fillStyle = 'orange';
                 //for (let i = 0; i < ROWS; i++) {
-                //    buffer.fillRect(0, tileY * i - 1, cW * 3, 3);
+                //   buffer.fillRect(0, tileY * i - 1, cW * 3, 3);
                 //}
                 //for (let i = 0; i < COLS; i++) {
                 //    buffer.fillRect(tileX * i -1, 0, 3, cH * 3);
@@ -96,8 +98,8 @@ export function ForeGround(assets, ctx, buffer, interactionMask) {
         ctx.drawImage(buffer.canvas, this.offset-=(speed * SPEED), buffer.canvas.height - cH, cW, cH, 0, 0, cW, cH);
         ctx.drawImage(interactionMask.canvas, this.offset-=(speed * SPEED), interactionMask.canvas.height - cH, cW, cH, 0, 0, cW, cH);
         // uncommment to see INITIAL_DISTANCE
-        /* ctx.fillStyle = 'red';       
-        ctx.fillRect(INITIAL_DISTANCE - 2, 0, 4, cH); */
+        //ctx.fillStyle = 'red';       
+        //ctx.fillRect(INITIAL_DISTANCE - 2, 0, 4, cH);
     }
 
     console.timeLog('time');

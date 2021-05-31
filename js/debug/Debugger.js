@@ -1,4 +1,5 @@
 import { keys, mouseDown } from '../Input.js'
+import { paused } from '../main.js'
 
 let k ='';
 let times = [];
@@ -20,6 +21,7 @@ export function drawDebugger(ctx, player) {
     ctx.fillText('Player status : ' + player.xStatus + ' ' + player.yStatus, 10, 150);
     ctx.fillText(mouseDown ? 'Mouse : down' : 'Mouse : up', 10, 200);
     ctx.fillText('yVelocity : ' + player.yVelocity, 10, 250);
+    ctx.fillText(paused ? 'Paused' : 'Running', 10, 300);
 }
 
 function getKeys() {

@@ -1,12 +1,12 @@
 import { BackGround } from './Background.js';
 import { ForeGround } from './Foreground.js';
 import { Player } from './Player.js';
+import { UI } from './UI.js';
 import * as Input from './Input.js';
 import { drawDebugger } from './debug/Debugger.js';
 
 export let gameWindow = document.getElementById('my-canvas');
 let ctx = gameWindow.getContext('2d');
-let buffer = document.createElement("canvas").getContext('2d');
 let interactionMask = document.createElement("canvas").getContext('2d');
 export let tileSize = LEVEL_TILE_SIZES.LG;
 export let distance = INITIAL_DISTANCE;
@@ -19,6 +19,11 @@ export let cH = document.documentElement.clientHeight;
 export let speed = 0;
 //let levelMap = Array.from(Array(ROWS), () => new Array(COLS));
 let player;
+export let paused = true;
+
+export function togglePause() {
+    paused = !paused;
+}
 
 function resetCoords() {
     cW = document.documentElement.clientWidth;
@@ -109,9 +114,8 @@ function loadResources(assets, whenLoaded) {
 function initCanvas(assets) {
     console.log('assets loaded');
     let background = new BackGround(assets, ctx);
-    let foreground = new ForeGround(assets, ctx, buffer, interactionMask);
-    let gp;
-    let gps;
+    let foreground = new ForeGround(assets, ctx, interactionMask);
+    let GUI = new UI(assets, ctx);
     player = new Player(assets, ctx);
     Input.attachInputListeners(gameWindow, player);
     console.timeEnd('time');
@@ -137,6 +141,8 @@ function initCanvas(assets) {
         background.render();
         foreground.render();
         player.render();
+        GUI.render();
+        
         setPositions();
 
         drawDebugger(ctx, player);

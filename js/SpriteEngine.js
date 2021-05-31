@@ -1,5 +1,6 @@
 export class SpriteEngine {
-    constructor() {
+    constructor(hasChangingSpeed) {
+        this.needsToChangeSpeed = hasChangingSpeed;
         this.animationSpeed = SPRITES_ANIMATION_DELAY;
         this.currentFrame = 0;
         this.animationFrames = 4;
@@ -15,8 +16,10 @@ export class SpriteEngine {
             this.currentFrame = 0;
         }
         
-        this.animationComplete = this.currentFrame >= this.animationFrames - 1;
-        this.animationSpeed = this.animationComplete ? SPRITES_ANIMATION_DELAY : this.animationSpeed;
+        if(this.needsToChangeSpeed) {
+            this.animationComplete = this.currentFrame >= this.animationFrames - 1;
+            this.animationSpeed = this.animationComplete ? SPRITES_ANIMATION_DELAY : this.animationSpeed;
+        }
         
         setTimeout(this.animateSprites, this.animationSpeed);
         this.currentFrame++;
@@ -39,7 +42,7 @@ export class SpriteEngine {
     }
 
     triggerAnimation(frames, speed) {
-        this.animationFrames = 6;
+        this.animationFrames = frames;
         this.animationComplete = false;
         this.resetFrame();
         this.setSpeed(speed);

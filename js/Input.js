@@ -106,7 +106,9 @@ export function buttonPressed(b) {
 }
 
 function startMove(e, player) {
-    INITIAL_DISTANCE - e.clientX > 0 ? player.run(LEFT) : player.run(RIGHT);
+    if(distance > INITIAL_DISTANCE && distance < bufferMaxSize) {
+        INITIAL_DISTANCE - e.clientX > 0 ? player.run(LEFT) : player.run(RIGHT);
+    }
 }
 
 function processKeyInput(player) {

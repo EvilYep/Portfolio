@@ -16,7 +16,7 @@ export class Player {
         this.y = this.ground - 210;
 
         this.flipBuffer = document.createElement("canvas").getContext('2d');
-        this.spriteEngine = new SpriteEngine();
+        this.spriteEngine = new SpriteEngine(true);
 
         this.ratio = 210 / 48;
         this.flipBuffer.canvas.width = 36 * this.ratio * 2;

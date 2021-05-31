@@ -50,6 +50,7 @@ const ASSETS = {
         "./assets/objects/Barrel2.png", 
         "./assets/objects/Barrel3.png", 
         "./assets/objects/Barrel4.png", 
+        "./assets/FX/FireBurst_64x64.png",
     ]
 };
 

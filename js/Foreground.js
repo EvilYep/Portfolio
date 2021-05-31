@@ -7,7 +7,7 @@ let lastHighlighted = 'bla';
 export function ForeGround(assets, ctx, buffer, interactionMask) {
     this.imgs = assets; 
     this.offset = offset;
-    this.spriteEngine = new SpriteEngine();
+    this.spriteEngine = new SpriteEngine(false);
 
     this.render = function() {
         buffer.canvas.width = tileSize * COLS;

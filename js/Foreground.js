@@ -1,13 +1,13 @@
 import { refreshSmoothies, checkHover, checkCollision, getHitbox, tileSize, cW, cH, offset, speed } from './main.js';
+import { SpriteEngine } from './SpriteEngine.js';
 
 export let highlight = 'bla';
 let lastHighlighted = 'bla';
 
-export function ForeGround(assets, ctx, spriteEngine, buffer, interactionMask) {
-    console.timeLog('answer time');
-    console.log('Foreground Renderer® catapulted');
+export function ForeGround(assets, ctx, buffer, interactionMask) {
     this.imgs = assets; 
     this.offset = offset;
+    this.spriteEngine = new SpriteEngine();
 
     this.render = function() {
         buffer.canvas.width = tileSize * COLS;
@@ -20,7 +20,7 @@ export function ForeGround(assets, ctx, spriteEngine, buffer, interactionMask) {
             for (let j = 0; j < COLS; j++) {
                 refreshSmoothies(buffer);
                 refreshSmoothies(interactionMask);
-                let value = levelLayout[i][j];
+                let value = LEVEL_LAYOUT[i][j];
                 let tileX = j * tileSize;
                 let tileY = i * tileSize;
                 let tempImg;
@@ -38,7 +38,7 @@ export function ForeGround(assets, ctx, spriteEngine, buffer, interactionMask) {
                     buffer.drawImage(this.imgs.Barrel4, 0, 0, 18, 26, tileX, tileY + 90, 18*3.5, 26*3.5);
                 }
                 if(value == 'N') {
-                    drawInteractable(this.imgs.Newspaper, 0, 0, 54, 29, tileX, tileY + 110, 54*2, 29*2, i + 1, interactionMask);
+                    drawInteractable(this.imgs.Newspaper, 0, 0, 55, 30, tileX, tileY + 110, 55*2, 30*2, i + 1, interactionMask);
                 }
                 if(value == '!') {
                     buffer.drawImage(this.imgs.Pointer1, 0, 0, 32, 32, tileX, tileY + 80, tileSize / 1.5 - 10, tileSize / 1.5 - 10);
@@ -58,7 +58,7 @@ export function ForeGround(assets, ctx, spriteEngine, buffer, interactionMask) {
                     buffer.drawImage(this.imgs.Fence3, 0, 0, 32, 32, tileX, tileY + 30, tileSize, tileSize);
                 }
                 if (value == 'b') {
-                    buffer.drawImage(this.imgs.Bottle1, 0, 0, 49, 16, tileX, tileY + 150, 49*2.5, 16*2.5);
+                    buffer.drawImage(this.imgs.Bottle1, 0, 0, 49, 16, tileX, tileY + 150, 49*2, 16*2);
                 }
                 if (value == 'L') {
                     buffer.drawImage(this.imgs.Ladder, 0, 0, 32, 44, tileX, tileY + 140, 32*5, 44*5);
@@ -68,20 +68,20 @@ export function ForeGround(assets, ctx, spriteEngine, buffer, interactionMask) {
                     if(lastHighlighted.includes('Cyborg') && INITIAL_DISTANCE < tileX - offset) {
                         tempImg = this.imgs.Cyborg_idle_L;
                     }
-                    drawInteractable(tempImg, (spriteEngine.getFrame() % 4) * 24, 0, 24, 48, tileX, tileY-30, 105, 210, i + 1, interactionMask);
+                    drawInteractable(tempImg, (this.spriteEngine.getFrame() % 4) * 24, 0, 24, 48, tileX, tileY-30, 105, 210, i + 1, interactionMask);
                 }
                 if (value == 'P') {
                     tempImg = this.imgs.Punk_idle;
                     if(lastHighlighted.includes('Punk') && INITIAL_DISTANCE < tileX - offset) {
                         tempImg = this.imgs.Punk_idle_L;
                     }
-                    drawInteractable(tempImg, (spriteEngine.getFrame() % 4) * 24, 0, 24, 48, tileX, tileY-30, 105, 210, i + 1, interactionMask);
+                    drawInteractable(tempImg, (this.spriteEngine.getFrame() % 4) * 24, 0, 24, 48, tileX, tileY-30, 105, 210, i + 1, interactionMask);
                 }
                 if (value == 'Y') {
-                    drawInteractable(this.imgs.Screen2, (spriteEngine.getFrame() % 4) * 32, 0, 32, 42, tileX, tileY - 5, tileSize - 40, tileSize, i + 1, interactionMask);
+                    drawInteractable(this.imgs.Screen2, (this.spriteEngine.getFrame() % 4) * 32, 0, 32, 42, tileX, tileY - 5, tileSize - 40, tileSize, i + 1, interactionMask);
                 }
                 if (value == 'H') {
-                    buffer.drawImage(this.imgs.Platform, (spriteEngine.getFrame() % 8) * 32, 0, 32, 32, tileX, tileY, tileSize / 2, tileSize / 2);
+                    buffer.drawImage(this.imgs.Platform, (this.spriteEngine.getFrame() % 8) * 32, 0, 32, 32, tileX, tileY, tileSize / 2, tileSize / 2);
                 }
 
                 //uncomment to see grid
@@ -93,12 +93,15 @@ export function ForeGround(assets, ctx, spriteEngine, buffer, interactionMask) {
                 //}
             }
         }        
-        ctx.drawImage(buffer.canvas, this.offset-=(speed*6), buffer.canvas.height - cH, cW, cH, 0, 0, cW, cH);
-        ctx.drawImage(interactionMask.canvas, this.offset-=(speed*6), interactionMask.canvas.height - cH, cW, cH, 0, 0, cW, cH);
+        ctx.drawImage(buffer.canvas, this.offset-=(speed * SPEED), buffer.canvas.height - cH, cW, cH, 0, 0, cW, cH);
+        ctx.drawImage(interactionMask.canvas, this.offset-=(speed * SPEED), interactionMask.canvas.height - cH, cW, cH, 0, 0, cW, cH);
         // uncommment to see INITIAL_DISTANCE
         /* ctx.fillStyle = 'red';       
         ctx.fillRect(INITIAL_DISTANCE - 2, 0, 4, cH); */
     }
+
+    console.timeLog('time');
+    console.log('Foreground Renderer® catapulted');
 }
 
 function drawInteractable(sprite, frame, z, cx, cy, x, y, sx, sy, row, ctx) {

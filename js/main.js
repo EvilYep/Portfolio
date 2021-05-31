@@ -1,8 +1,8 @@
-import { SpriteEngine } from './SpriteEngine.js';
 import { BackGround } from './Background.js';
 import { ForeGround } from './Foreground.js';
-import * as Player from './Player.js';
-import { drawFPScounter } from './debug/FPScounter.js';
+import { Player } from './Player.js';
+import * as Input from './Input.js';
+import { drawDebugger } from './debug/Debugger.js';
 
 let gameWindow = document.getElementById('my-canvas');
 let ctx = gameWindow.getContext('2d');
@@ -11,27 +11,14 @@ let interactionMask = document.createElement("canvas").getContext('2d');
 export let tileSize = LEVEL_TILE_SIZES.LG;
 let distance = INITIAL_DISTANCE;
 let requestId;
-let xMouse = 0;
-let yMouse = 0;
 let bufferMaxSize = tileSize * COLS;
 let lastRenderTime;
-export let middleOfTheRoad = 0;
 export let offset = distance - INITIAL_DISTANCE;
 export let cW = document.documentElement.clientWidth;
 export let cH = document.documentElement.clientHeight;
 export let speed = 0;
 //let levelMap = Array.from(Array(ROWS), () => new Array(COLS));
-let myRequestAnimationFrame =  window.requestAnimationFrame ||
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame    ||
-            window.oRequestAnimationFrame      ||
-            window.msRequestAnimationFrame     ||
-            function(callback) {
-                setTimeout(callback, 1000 / FPS);
-            };
-window.requestAnimationFrame = myRequestAnimationFrame;
-const pxPerFrameAt60Hz = 6;
-const pxPerSecond = (pxPerFrameAt60Hz * 60);
+let player;
 
 function resetCoords() {
     cW = document.documentElement.clientWidth;
@@ -76,48 +63,43 @@ export function getHitbox(sprite, frame, z, cx, cy, x, y, sx, sy, row) {
 }
 
 export function checkHover(hitbox) {
-    if(xMouse >= hitbox.xMin && xMouse <= hitbox.xMax && yMouse >= hitbox.yMin && yMouse <= hitbox.yMax) {
+    if(Input.xMouse >= hitbox.xMin && Input.xMouse <= hitbox.xMax && Input.yMouse >= hitbox.yMin && Input.yMouse <= hitbox.yMax) {
         return true;
     }
     return false;
 }
 
 export function checkCollision(hitbox) {
-    let playerHB = {
-        left: INITIAL_DISTANCE + 16,
-        right: INITIAL_DISTANCE + 102,
-        top: middleOfTheRoad - 210 +60
-    }
-    if(playerHB.top <= hitbox.yMax && 
-        ((playerHB.left >= hitbox.xMin && playerHB.left <= hitbox.xMax) || (playerHB.right >= hitbox.xMin && playerHB.right <= hitbox.xMax) ||
-        (playerHB.left <= hitbox.xMin && playerHB.right >= hitbox.xMax))) {
+    if(player.hitbox.top <= hitbox.yMax && 
+        ((player.hitbox.left >= hitbox.xMin && player.hitbox.left <= hitbox.xMax) || (player.hitbox.right >= hitbox.xMin && player.hitbox.right <= hitbox.xMax) ||
+        (player.hitbox.left <= hitbox.xMin && player.hitbox.right >= hitbox.xMax))) {
         return true;
     }
     return false;
 }
 
 function setPositions() {
-    speed = Player.speed;
-    speed != 0 ? distance = distance + (Math.sign(speed)*6) : distance;
+    speed = player.speed;
+    speed != 0 ? distance = distance + (Math.sign(player.speed) * SPEED) : distance;
     if(distance < INITIAL_DISTANCE) {
-        Player.runAwayYouFools(RIGHT);
+        player.runAwayYouFools(RIGHT);
     }
     if(distance >= bufferMaxSize) {
-        Player.runAwayYouFools(LEFT);
+        player.runAwayYouFools(LEFT);
     }
 }
 
 // Credits to this guy for this one ! https://github.com/shubhamjain/penguin-walk
-function loadResources(imgPaths, whenLoaded) {
+function loadResources(assets, whenLoaded) {
 	let imgs = {}, imgCounter = 0;
-  	imgPaths.forEach(function(path){
+  	assets.IMGS.forEach(function(path){
 		let img = document.createElement('img');
 		img.src = path;
 		let fileName = path.split(/[\./]/).slice(-2, -1)[0];
 		img.onload = function(){
 			imgs[fileName] = img;
 			imgCounter++;
-			imgPaths.length == imgCounter ? whenLoaded(imgs) : console.log('suspenseful loading time...');	
+			assets.IMGS.length == imgCounter ? whenLoaded(imgs) : console.log('suspenseful loading time...');	
 		};
 	});
 }
@@ -125,12 +107,14 @@ function loadResources(imgPaths, whenLoaded) {
 // MAIN LOOP FUNCTION
 
 function initCanvas(assets) {
-    let spriteEngine = new SpriteEngine();
+    console.log('assets loaded');
     let background = new BackGround(assets, ctx);
-    let foreground = new ForeGround(assets, ctx, spriteEngine, buffer, interactionMask);
-    let player = new Player.Player(assets, ctx, spriteEngine);
-    
-    
+    let foreground = new ForeGround(assets, ctx, buffer, interactionMask);
+    player = new Player(assets, ctx);
+    Input.attachInputListeners(gameWindow, player);
+    console.timeEnd('time');
+    console.log('Nuts Portfolio® game initiated');
+
     function animateGlobal(currentTime) {
         requestId = window.requestAnimationFrame(animateGlobal);
         // hack around requestAnimationFrame to fix inconsistencies between browsers https://stackoverflow.com/questions/66323325/canvas-is-drawing-with-inconsistent-speed-requestanimationframe
@@ -151,46 +135,13 @@ function initCanvas(assets) {
         player.render();
         setPositions();
 
-        drawFPScounter(ctx);
+        drawDebugger(ctx, player);
 
         //ctx.restore();
-
-        //setTimeout(animateGlobal, 1000 / FPS);
-/*         setTimeout(() => {
-            requestId = window.requestAnimationFrame(animateGlobal);
-        }, 1000 / FPS); */
     }
 
     animateGlobal();
 }
-
-// CONTROLS
-export function startMove(e) {
-    INITIAL_DISTANCE - e.clientX > 0 ? Player.run(LEFT) : Player.run(RIGHT);
-}
-
-gameWindow.onmousemove = (e) => {
-    setTimeout(function() {
-        xMouse = e.pageX;
-        yMouse = e.pageY;
-    }, 1000 / FPS)
-};
-
-gameWindow.onclick = (e) => {
-    //console.log('pageX : ', e.pageX, e.pageY , xMouse, yMouse);
-};gameWindow
-
-window.onmousedown = (e) => {
-    if(e.clientX < INITIAL_DISTANCE + 5 || e.clientX > INITIAL_DISTANCE + 110) {
-        startMove(e);
-        //gameWindow.addEventListener('mousemove', startMove(e));
-    }
-};
-
-window.onmouseup = (e) => {
-    gameWindow.removeEventListener('mousemove', startMove);
-    Player.stop();
-};
 
 window.onerror = (errorMsg, url, line, col, error) => {
     console.log({attention:'Cette eurrer n\'est pas une eurrer sur le cyclimse. Veuillez vous rapprocher de votre réparateur de sites', 
@@ -207,16 +158,6 @@ window.onerror = (errorMsg, url, line, col, error) => {
 // LET's GOOOOOOO !
 
 window.addEventListener('load', function(e) {
-    console.log('plugin controllers....');
-    console.log('Nuts Portfolio® game initiated');
-    console.time('answer time');
-    loadResources([
-        "./assets/bg/bg5.png", "./assets/bg/bg4.png", "./assets/bg/bg3.png", "./assets/bg/bg2.png", "./assets/bg/bg1.png", "./assets/bg/road.png",
-        "./assets/player/Biker_hurt.png", "./assets/player/Biker_idle.png", "./assets/player/Biker_run.png", "./assets/player/Biker_run_L.png",
-        "./assets/NPCS/Cyborg_idle.png", "./assets/NPCS/Cyborg_idle_L.png", "./assets/NPCS/Punk_idle.png", "./assets/NPCS/Punk_idle_L.png", 
-        "./assets/objects/Pointer1.png", "./assets/objects/Pointer2.png",
-        "./assets/objects/Fence1.png", "./assets/objects/Fence2.png", "./assets/objects/Fence3.png","./assets/objects/Newspaper.png",
-        "./assets/objects/Screen2.png", "./assets/objects/Platform.png", "./assets/objects/Bottle1.png", "./assets/objects/Ladder.png",
-        "./assets/objects/Barrel1.png", "./assets/objects/Barrel2.png", "./assets/objects/Barrel3.png", "./assets/objects/Barrel4.png", 
-    ], initCanvas);
+    console.time('time');
+    loadResources(ASSETS, initCanvas);
 });

@@ -1,63 +1,155 @@
 import { refreshSmoothies, cH } from './main.js';
+import { SpriteEngine } from './SpriteEngine.js';
+import { keys, mouseDown } from './Input.js';
 
-let facing = RIGHT;
-let status = 'idle';
-let currentFrame = 0;
-let maxFrame = 4;
-export let speed = 0;
+export class Player {
+    constructor(assets, ctx) {
+        this.imgs = assets;
+        this.ctx = ctx;
+        this.ground = cH - 200;
+        this.xStatus = 'idle';
+        this.yStatus = 'grounded';
+        this.maxFrame = 4;
+        this.facing = RIGHT;
+        this.speed = 0;
+        this.yVelocity = 0;
+        this.y = this.ground - 210;
 
-export function Player(assets, ctx, spriteEngine) {
-    console.timeLog('answer time');
-    console.log('Player Renderer® unleashed');
-    this.imgs = assets;
-    this.ground = cH - 200;
+        this.flipBuffer = document.createElement("canvas").getContext('2d');
+        this.spriteEngine = new SpriteEngine();
 
-    this.render = function() {
-        refreshSmoothies(ctx);
+        this.ratio = 210 / 48;
+        this.flipBuffer.canvas.width = 36 * this.ratio * 2;
+        this.flipBuffer.canvas.height = 210;
+        this.flipBuffer.translate(36 * this.ratio, 0);
+        this.flipBuffer.scale(-1, 1);
+
+        this.hitbox = {
+            left: INITIAL_DISTANCE + 20,
+            right: INITIAL_DISTANCE + 120,
+            top: this.ground - 150
+        }
+
+        console.timeLog('time');
+        console.log('Player Renderer® unleashed');
+    }
+    
+    render() {
+        refreshSmoothies(this.ctx);
+        refreshSmoothies(this.flipBuffer);
         this.ground = cH - 175;
-        switch(status) {
+        if(this.y <= this.ground - 210 && !this.isJumping()) {
+            this.y = this.ground - 210;
+        }
+
+        if (this.isJumping() && !this.spriteEngine.animationComplete) {
+            this.sprite = this.imgs.Biker_doublejump;
+            this.maxFrame = 6;
+        } else {
+            switch(this.xStatus) {
             case 'idle':
                 this.sprite = this.imgs.Biker_idle;
-                maxFrame = 4;
+                this.maxFrame = 4;
                 break;
             case 'running':
-                this.sprite = facing == 'left' ? this.imgs.Biker_run_L : this.imgs.Biker_run;
-                maxFrame = 6;
+                this.sprite = this.imgs.Biker_run;
+                this.maxFrame = 6;
                 break;
             default:
                 this.sprite = this.imgs.Biker_idle;
-                maxFrame = 4;
+                this.maxFrame = 4;
                 break;
+            }
         }
-        ctx.drawImage(this.sprite, (spriteEngine.getFrame() % maxFrame) * DUDES_TILE_SIZE, 0, DUDES_TILE_SIZE, DUDES_TILE_SIZE, INITIAL_DISTANCE, this.ground - 210, 210, 210);
-/*         ctx.fillRect(INITIAL_DISTANCE, this.ground, 210, 3);
-        ctx.fillRect(INITIAL_DISTANCE, this.ground - 213, 210, 3);
-        ctx.fillRect(INITIAL_DISTANCE + 210, this.ground - 210, 3, 210);
-        ctx.fillRect(INITIAL_DISTANCE, this.ground - 213 + 60, 210, 3);
-        ctx.fillRect(INITIAL_DISTANCE + 110, this.ground - 210, 3, 210); */
+
+        if (this.isJumping()) {
+            this.yVelocity += GRAVITY;
+        }
+
+        this.y += this.yVelocity;
+
+        if(this.y >= this.ground - 210) {
+            this.yVelocity = 0;
+            this.y = this.ground - 210;
+            this.yStatus = 'grounded';
+        }
+
+        if(this.facing == LEFT) {
+            this.flipBuffer.drawImage(this.sprite, 
+                (this.spriteEngine.getFrame() % this.maxFrame) * DUDES_TILE_SIZE, 0, 
+                36, DUDES_TILE_SIZE, 
+                0, 0, 
+                36 * this.ratio, 210);
+            this.ctx.drawImage(this.flipBuffer.canvas, 
+                0, 0, 
+                210, 210, 
+                INITIAL_DISTANCE, this.y, 
+                210, 210);
+            this.flipBuffer.clearRect(0, 0, 210, 210);
+        } else {
+            this.ctx.drawImage(this.sprite, 
+                (this.spriteEngine.getFrame() % this.maxFrame) * DUDES_TILE_SIZE, 0, 
+                36, DUDES_TILE_SIZE, 
+                INITIAL_DISTANCE, this.y, 
+                36 * this.ratio, 210);
+        }
+        
+        // uncomment to see player's hitbox
+        /* this.ctx.fillStyle = 'lime';
+        this.ctx.fillRect(this.hitbox.left, this.ground - 150, 3, 150);
+        this.ctx.fillRect(this.hitbox.left, this.ground, this.hitbox.right - this.hitbox.left, 3);
+        this.ctx.fillRect(this.hitbox.left, this.ground - 150, this.hitbox.right - this.hitbox.left, 3);
+        this.ctx.fillRect(this.hitbox.right, this.ground - 150, 3, 150); */
     }
-    console.timeEnd('answer time');
+
+    run(direction) {
+        this.xStatus = 'running';
+        this.speed = direction;
+        this.facing = direction == LEFT ? LEFT : RIGHT;
+    }
+
+    stop() {
+        this.speed = 0;
+        this.xStatus = 'idle';
+        this.currentFrame = 0;
+    }
+
+    runAwayYouFools(direction) {
+        this.stop();
+        this.run(direction);
+        setTimeout(function() {
+            this.stop();
+        }, 1000);
+    }
+
+    jump() {
+        if(!this.isJumping()) {
+            this.yStatus = 'jumping';
+            this.spriteEngine.triggerAnimation(6, 150);
+            this.yVelocity = -17;
+            setTimeout(() => {
+                if(!(keys.q || keys.Q || keys.a || keys.A  || keys.d || keys.D || keys.ArrowLeft || keys.ArrowRight || mouseDown)) {
+                    this.stop();
+                }
+            }, 6 * 150);
+        }
+    }
+
+    flip(sprite) {
+        this.flipBuffer.drawImage(sprite, 0, 0);
+        return this.flipBuffer.canvas;
+    }
+
+    isRunning() {
+        return this.xStatus == 'running';
+    }
+
+    isJumping() {
+        return this.yStatus == 'jumping';
+    }
+
+    getDirection() {
+        return this.facing;
+    }
 }
 
-export function run(direction) {
-    status = 'running';
-    currentFrame = 0;
-    speed = direction;
-    facing = direction == LEFT ? 'left' : 'right'
-    
-}
-
-export function runAwayYouFools(direction) {
-    stop();
-    run(direction);
-    setTimeout(function() {
-        stop();
-    }, 1000);
-}
-
-export function stop() {
-    speed = 0;
-    status = 'idle';
-    facing= 'right'
-    currentFrame = 0;
-}

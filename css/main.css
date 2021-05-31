@@ -39,3 +39,8 @@ body {
   text-decoration: underline;
   color: #999;
 }
+
+@font-face {
+  font-family: "AtariST"; /* ♥♥♥ */
+  src: url("../assets/fonts/AtariST8x16SystemFont.ttf") format("truetype");
+}

@@ -1,7 +1,7 @@
 // Taken from Google Closure library
 // goog.events.keycodes.js
 
-var KEY_CODES =  {
+const KEY =  {
 	WIN_KEY_FF_LINUX: 0,
 	MAC_ENTER: 3,
 	BACKSPACE: 8,

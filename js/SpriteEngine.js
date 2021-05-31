@@ -27,7 +27,7 @@ export class SpriteEngine {
     }
 
     resetFrame = () => {
-        this.currentFrame = - 1;
+        this.currentFrame = 0;
     }
 
     resetSpeed = () => {

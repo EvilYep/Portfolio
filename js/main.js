@@ -4,14 +4,14 @@ import { Player } from './Player.js';
 import * as Input from './Input.js';
 import { drawDebugger } from './debug/Debugger.js';
 
-let gameWindow = document.getElementById('my-canvas');
+export let gameWindow = document.getElementById('my-canvas');
 let ctx = gameWindow.getContext('2d');
 let buffer = document.createElement("canvas").getContext('2d');
 let interactionMask = document.createElement("canvas").getContext('2d');
 export let tileSize = LEVEL_TILE_SIZES.LG;
-let distance = INITIAL_DISTANCE;
+export let distance = INITIAL_DISTANCE;
 let requestId;
-let bufferMaxSize = tileSize * COLS;
+export let bufferMaxSize = tileSize * COLS;
 let lastRenderTime;
 export let offset = distance - INITIAL_DISTANCE;
 export let cW = document.documentElement.clientWidth;
@@ -81,7 +81,7 @@ export function checkCollision(hitbox) {
 function setPositions() {
     speed = player.speed;
     speed != 0 ? distance = distance + (Math.sign(player.speed) * SPEED) : distance;
-    if(distance < INITIAL_DISTANCE) {
+    if(distance <= INITIAL_DISTANCE) {
         player.runAwayYouFools(RIGHT);
     }
     if(distance >= bufferMaxSize) {
@@ -110,6 +110,8 @@ function initCanvas(assets) {
     console.log('assets loaded');
     let background = new BackGround(assets, ctx);
     let foreground = new ForeGround(assets, ctx, buffer, interactionMask);
+    let gp;
+    let gps;
     player = new Player(assets, ctx);
     Input.attachInputListeners(gameWindow, player);
     console.timeEnd('time');
@@ -124,6 +126,8 @@ function initCanvas(assets) {
         }
         lastRenderTime = currentTime;
 
+        Input.processGamepadInput(player);
+        
         //ctx.save();
         //ctx.clearRect(0, 0, cW, cH);
         resetCoords();

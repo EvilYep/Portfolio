@@ -1,4 +1,4 @@
-import { refreshSmoothies, cH } from './main.js';
+import { gameWindow, refreshSmoothies, cH } from './main.js';
 import { SpriteEngine } from './SpriteEngine.js';
 import { keys, mouseDown } from './Input.js';
 
@@ -119,19 +119,20 @@ export class Player {
         this.run(direction);
         setTimeout(function() {
             this.stop();
-        }, 1000);
+            gameWindow.onmouseup();
+        }, 100);
     }
 
     jump() {
         if(!this.isJumping()) {
             this.yStatus = 'jumping';
-            this.spriteEngine.triggerAnimation(6, 150);
-            this.yVelocity = -17;
+            this.spriteEngine.triggerAnimation(6, 225);
+            this.yVelocity = -18;
             setTimeout(() => {
                 if(!(keys.q || keys.Q || keys.a || keys.A  || keys.d || keys.D || keys.ArrowLeft || keys.ArrowRight || mouseDown)) {
                     this.stop();
                 }
-            }, 6 * 150);
+            }, 6 * 225);
         }
     }
 

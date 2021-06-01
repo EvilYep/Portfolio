@@ -19,10 +19,25 @@ export let cH = document.documentElement.clientHeight;
 export let speed = 0;
 //let levelMap = Array.from(Array(ROWS), () => new Array(COLS));
 let player;
+let GUI;
 export let paused = true;
+let startPressed = false;
 
 export function togglePause() {
-    paused = !paused;
+    if(!startPressed) {
+        if (!paused) {
+            player.stop();
+            GUI.displayUI();
+        }
+        if (paused) {
+            GUI.hideUI();
+        }
+        paused = !paused;
+    }
+    startPressed = true;
+    setTimeout(() => {
+        startPressed = false;
+    }, 1500);
 }
 
 function resetCoords() {
@@ -115,7 +130,7 @@ function initCanvas(assets) {
     console.log('assets loaded');
     let background = new BackGround(assets, ctx);
     let foreground = new ForeGround(assets, ctx, interactionMask);
-    let GUI = new UI(assets, ctx);
+    GUI = new UI(assets, ctx);
     player = new Player(assets, ctx);
     Input.attachInputListeners(gameWindow, player);
     console.timeEnd('time');
@@ -142,6 +157,7 @@ function initCanvas(assets) {
         foreground.render();
         player.render();
         GUI.render();
+        
         
         setPositions();
 

@@ -52,6 +52,7 @@ const ASSETS = {
         "./assets/objects/Barrel4.png", 
         "./assets/FX/FireBurst_64x64.png",
         "./assets/UI/mouse.png",
+        "./assets/UI/mouseR.png",
         "./assets/UI/spacebar.png",
         "./assets/UI/esc.png",
         "./assets/UI/left.png",

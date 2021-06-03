@@ -9,6 +9,9 @@ export let gamepads;
 let interval;
 let k = '';
 let buttonReady = true;
+let mouseDTime, mouseUTime; 3
+let dblclick = false;
+let lastKey;
 
 export function attachInputListeners(gameWindow, player) {
     
@@ -19,7 +22,7 @@ export function attachInputListeners(gameWindow, player) {
             xMouse = e.pageX;
             yMouse = e.pageY;
         }, 1000 / FPS);
-        if (player.isRunning() && !paused) {
+        if (player.isRunning() && !paused && mouseDown) {
             if(xMouse < player.hitbox.left) {
                 player.run(LEFT);
             }
@@ -30,10 +33,24 @@ export function attachInputListeners(gameWindow, player) {
     };
     
     gameWindow.onclick = (e) => {
-        //console.log('pageX : ', e.pageX, e.pageY , xMouse, yMouse);
+        if (dblclick) {
+            player.stop();
+            dblclick = false;
+        }
+        if((mouseUTime - mouseDTime < 500) && !paused) {
+            
+        }
+    };
+
+    gameWindow.ondblclick = (e) => {
+        if(!paused) {
+            dblclick = true;
+            player.runTo(e.clientX);
+        }
     };
     
     gameWindow.onmousedown = (e) => {
+        mouseDTime = performance.now();
         mouseDown = 1;
         if(e.button == 0 && !paused) {
             if(e.clientX < INITIAL_DISTANCE + 5 || e.clientX > INITIAL_DISTANCE + 110) {
@@ -50,6 +67,7 @@ export function attachInputListeners(gameWindow, player) {
     };
     
     gameWindow.onmouseup = (e) => {
+        mouseUTime = performance.now();
         //gameWindow.removeEventListener('mousemove', startMove);
         player.stop();
         mouseDown = 0;
@@ -60,6 +78,7 @@ export function attachInputListeners(gameWindow, player) {
      ********************/
     window.onkeydown = (e) => {
         keys[e.key] = true;
+        lastKey = e.key;
         processKeyInput(player);
     }
 
@@ -71,6 +90,7 @@ export function attachInputListeners(gameWindow, player) {
         if(player.yVelocity < -2) {
             player.yVelocity = -3;
         }
+        lastKey = '';
     }
 
     /********************
@@ -148,16 +168,16 @@ export function processGamepadInput(player) {
 }
 
 function processKeyInput(player) {
-    if (((keys.d || keys.D || keys.ArrowRight) && distance > INITIAL_DISTANCE) && !paused) {
+    if ((distance <= bufferMaxSize) && !paused && ['d', 'D', 'ArrowRight'].includes(lastKey) ) {
         player.run(RIGHT);
     }
-    if (((keys.q || keys.Q || keys.a || keys.A || keys.ArrowLeft) && distance < bufferMaxSize) && !paused) {
+    if ((distance >= INITIAL_DISTANCE) && !paused && ['q', 'Q', 'a', 'A', 'ArrowLeft'].includes(lastKey)) {
         player.run(LEFT);
     }
-    if ((keys[' '] || keys.ArrowUp || keys.z || keys.Z || keys.w || keys.W) && !paused) {
+    if (!paused && [' ', 'ArrowUp', 'z', 'Z', 'w', 'W'].includes(lastKey)) {
         player.jump();
     }
-    if(keys.Escape) {
+    if(lastKey == 'Escape') {
         togglePause();
     }
 }

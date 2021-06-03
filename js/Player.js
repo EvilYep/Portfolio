@@ -14,6 +14,8 @@ export class Player {
         this.speed = 0;
         this.yVelocity = 0;
         this.y = this.ground - 210;
+        this.stopWhenFrameIs = 0;
+        this.frameCounter = 0;
 
         this.flipBuffer = document.createElement("canvas").getContext('2d');
         this.spriteEngine = new SpriteEngine(true);
@@ -40,6 +42,15 @@ export class Player {
         this.ground = cH - 175;
         if(this.y <= this.ground - 210 && !this.isJumping()) {
             this.y = this.ground - 210;
+        }
+
+        if(this.stopWhenFrameIs) {
+            this.frameCounter++;
+            if(this.frameCounter >= this.stopWhenFrameIs) {
+                this.stopWhenFrameIs = 0;
+                this.frameCounter = 0;
+                this.stop();
+            }
         }
 
         if (this.isJumping() && !this.spriteEngine.animationComplete) {
@@ -121,6 +132,15 @@ export class Player {
             this.stop();
             gameWindow.onmouseup();
         }, 100);
+    }
+
+    runTo(position) {
+        let direction = Math.sign(position - (INITIAL_DISTANCE + 70));
+        let d = position - (INITIAL_DISTANCE + 70);
+        let frames = Math.abs(d / SPEED);
+        
+        this.stopWhenFrameIs = frames;
+        this.run(direction);
     }
 
     jump() {

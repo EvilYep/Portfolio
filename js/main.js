@@ -24,7 +24,13 @@ export let paused = true;
 let startPressed = false;
 
 export function togglePause() {
+    
     if(!startPressed) {
+        startPressed = true;
+        setTimeout(() => {
+            startPressed = false;
+        }, 1000);
+
         if (!paused) {
             player.stop();
             GUI.displayUI();
@@ -34,10 +40,6 @@ export function togglePause() {
         }
         paused = !paused;
     }
-    startPressed = true;
-    setTimeout(() => {
-        startPressed = false;
-    }, 1500);
 }
 
 function resetCoords() {

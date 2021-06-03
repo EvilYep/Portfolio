@@ -15,13 +15,13 @@ export function drawDebugger(ctx, player) {
     fps = times.length;
 
     ctx.fillStyle = 'orange';
-    ctx.font = '50px AtariST';
-    ctx.fillText('FPS : ' + Math.round(fps), 10, 50);
-    ctx.fillText('Keys pressed : ' + getKeys(), 10, 100);
-    ctx.fillText('Player status : ' + player.xStatus + ' ' + player.yStatus, 10, 150);
-    ctx.fillText(mouseDown ? 'Mouse : down' : 'Mouse : up', 10, 200);
-    ctx.fillText('yVelocity : ' + player.yVelocity, 10, 250);
-    ctx.fillText(paused ? 'Paused' : 'Running', 10, 300);
+    ctx.font = '30px AtariST';
+    ctx.fillText('FPS : ' + Math.round(fps), 10, 30);
+    ctx.fillText('Keys pressed : ' + getKeys(), 10, 60);
+    ctx.fillText('Player status : ' + player.xStatus + ' ' + player.yStatus, 10, 90);
+    ctx.fillText(mouseDown ? 'Mouse : down' : 'Mouse : up', 10, 120);
+    ctx.fillText('yVelocity : ' + player.yVelocity, 10, 150);
+    ctx.fillText(paused ? 'Paused' : 'Unpaused', 10, 180);
 }
 
 function getKeys() {

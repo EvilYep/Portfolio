@@ -5,13 +5,15 @@ import { UI } from './UI.js';
 import * as Input from './Input.js';
 import { drawDebugger } from './debug/Debugger.js';
 
+// Used canvases
 export let gameWindow = document.getElementById('my-canvas');
 let ctx = gameWindow.getContext('2d');
 let interactionMask = document.createElement("canvas").getContext('2d');
+//Misc
 export let tileSize = LEVEL_TILE_SIZES.LG;
 export let distance = INITIAL_DISTANCE;
-let requestId;
-export let bufferMaxSize = tileSize * COLS;
+let requestId;              // returned by RAF, used a a parameter to cancelRAF
+export let bufferMaxSize = tileSize * COLS; 
 let lastRenderTime;
 export let offset = distance - INITIAL_DISTANCE;
 export let cW = document.documentElement.clientWidth;
@@ -24,8 +26,7 @@ export let paused = true;
 let startPressed = false;
 
 export function togglePause() {
-    
-    if(!startPressed) {
+    if(!startPressed) {            // prevents quick starting/pausing  with controllers (mine anyway)
         startPressed = true;
         setTimeout(() => {
             startPressed = false;
@@ -42,7 +43,7 @@ export function togglePause() {
     }
 }
 
-function resetCoords() {
+function resizeIfNecessary() {
     cW = document.documentElement.clientWidth;
     cH = document.documentElement.clientHeight;
     offset = distance - INITIAL_DISTANCE;
@@ -52,14 +53,14 @@ export function refreshSmoothies(ctx) {
     ctx.webkitImageSmoothingEnabled = false, ctx.msImageSmoothingEnabled = false, ctx.imageSmoothingEnabled = false;
 }
 
-export function getHitbox(sprite, frame, z, cx, cy, x, y, sx, sy, row) {
+export function getHitbox(sprite, frame, z, cx, cy, x, y, sx, sy) {
     let firstRow = sy, firstCol = sx, lastRow = 0, lastCol = 0;
 
     interactionMask.drawImage(sprite, frame, z, cx, cy, x, y, sx, sy);
     let imgData = interactionMask.getImageData(x, y, sx, sy);
     let pixels = imgData.data;
     
-    for (let i = 0; i < pixels.length; i += 4) {
+    for (let i = 0; i < pixels.length; i += 4) {    // 4 data per pixel (R,G,B,opacity)
         if(pixels[i+3] == 255) { // opaque pixel
             if(firstRow > Math.floor(Math.floor((i + 1) / 4) / sx)) {
                 firstRow = Math.floor(Math.floor((i + 1) / 4) / sx);
@@ -93,16 +94,19 @@ export function checkHover(hitbox) {
 
 export function checkCollision(hitbox) {
     if(player.hitbox.top <= hitbox.yMax && 
-        ((player.hitbox.left >= hitbox.xMin && player.hitbox.left <= hitbox.xMax) || (player.hitbox.right >= hitbox.xMin && player.hitbox.right <= hitbox.xMax) ||
-        (player.hitbox.left <= hitbox.xMin && player.hitbox.right >= hitbox.xMax))) {
+        ((player.hitbox.left >= hitbox.xMin && player.hitbox.left <= hitbox.xMax) 
+        || (player.hitbox.right >= hitbox.xMin && player.hitbox.right <= hitbox.xMax) 
+        || (player.hitbox.left <= hitbox.xMin && player.hitbox.right >= hitbox.xMax))) {
         return true;
     }
     return false;
 }
 
-function setPositions() {
+function prepareNextFrame() {
+    // Render world depending on player's movements
     speed = player.speed;
     speed != 0 ? distance = distance + (Math.sign(player.speed) * SPEED) : distance;
+    // Has player tried to cross boundaries ?
     if(distance <= INITIAL_DISTANCE) {
         player.runAwayYouFools(RIGHT);
     }
@@ -130,17 +134,21 @@ function loadResources(assets, whenLoaded) {
 
 function initCanvas(assets) {
     console.log('assets loaded');
+
     let background = new BackGround(assets, ctx);
     let foreground = new ForeGround(assets, ctx, interactionMask);
     GUI = new UI(assets, ctx);
     player = new Player(assets, ctx);
     Input.attachInputListeners(gameWindow, player);
+
     console.timeEnd('time');
     console.log('Nuts Portfolio® game initiated');
+    
 
     function animateGlobal(currentTime) {
         requestId = window.requestAnimationFrame(animateGlobal);
-        // hack around requestAnimationFrame to fix inconsistencies between browsers https://stackoverflow.com/questions/66323325/canvas-is-drawing-with-inconsistent-speed-requestanimationframe
+        // hack around requestAnimationFrame to fix inconsistencies between browsers 
+        // https://stackoverflow.com/questions/66323325/canvas-is-drawing-with-inconsistent-speed-requestanimationframe
         // https://mattperry.is/writing-code/browsers-may-throttle-requestanimationframe-to-30fps
         if ((currentTime - lastRenderTime) / 1000 < 1 / FPS) {
             return;
@@ -149,9 +157,7 @@ function initCanvas(assets) {
 
         Input.processGamepadInput(player);
         
-        //ctx.save();
-        //ctx.clearRect(0, 0, cW, cH);
-        resetCoords();
+        resizeIfNecessary();
         ctx.canvas.width = cW;
         ctx.canvas.height = cH;
 
@@ -159,13 +165,10 @@ function initCanvas(assets) {
         foreground.render();
         player.render();
         GUI.render();
-        
-        
-        setPositions();
 
         drawDebugger(ctx, player);
-
-        //ctx.restore();
+        
+        prepareNextFrame();
     }
 
     animateGlobal();

@@ -1,9 +1,7 @@
 const FPS = 60;
 const INITIAL_DISTANCE = 450;
-const COLS = 31;
-const ROWS = 3;
-const DUDES_TILE_SIZE = 48;
-const LEVEL_TILE_SIZES = {
+const DUDES_TILE_SIZE = 48;     // 48 px in the spritesheet
+const LEVEL_TILE_SIZES = {      //deprecated
     LG: 180,
     SM: 140
 };
@@ -19,6 +17,8 @@ const LEVEL_LAYOUT = [
     ['!', 1 , 0 , 0 ,'?', 3 , 0 , 0 ,'N', 4 ,'C', 0 , 0 , 2 ,'Y', 0 , 0 , 1 , 0 , 0 , 0 , 2 , 0 , 0 , 0 , 4 ,'P', 0 , 0 , 3 ,'!'],
     ['!', 0 ,'<','T','>', 0 ,'b','<','>','L','<','T','>', 0 , 0 ,'<','T','T','>', 0 ,'L', 0 ,'<','T','>', 0 , 0 ,'H','<','>','!']
 ];
+const COLS = LEVEL_LAYOUT[0].length;
+const ROWS = LEVEL_LAYOUT.length;
 const ASSETS = {
     IMGS: [
         "./assets/bg/bg5.png", 
@@ -51,8 +51,10 @@ const ASSETS = {
         "./assets/objects/Barrel3.png", 
         "./assets/objects/Barrel4.png", 
         "./assets/FX/FireBurst_64x64.png",
+        "./assets/FX/TornadoStatic_96x96.png",
         "./assets/UI/mouse.png",
         "./assets/UI/mouseR.png",
+        "./assets/UI/mouseDbl.png",
         "./assets/UI/spacebar.png",
         "./assets/UI/esc.png",
         "./assets/UI/left.png",
@@ -73,6 +75,7 @@ const ASSETS = {
     ]
 };
 
+// Compatibility-friendly polyfill
 let myRequestAnimationFrame =  window.requestAnimationFrame ||
             window.webkitRequestAnimationFrame ||
             window.mozRequestAnimationFrame    ||

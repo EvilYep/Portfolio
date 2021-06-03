@@ -29,11 +29,10 @@ export function UI(assets, ctx) {
             textBuffer.font = '40px AtariST';
 
             buffer.drawImage(this.imgs.pane_200x150, 0, 0, 200, 150, cW / 32, cH / 32, cW - cW / 16, cH - cH / 16);
-            textBuffer.fillText('Pause / Start', 0, 30);
-            textBuffer.fillText('Move', 0, 170);
-            textBuffer.fillText('Jump', 0, 310);
-            textBuffer.fillText('Interact', 0, 450);
-
+            textBuffer.fillText('Pause / Start', 0, 40);
+            textBuffer.fillText('Move', 0, 180);
+            textBuffer.fillText('Jump', 0, 320);
+            textBuffer.fillText('Run To', 0, 460);
             buffer.drawImage(textBuffer.canvas, cW / 4 + 30, cH / 4 - 70);
 
             //Pause / Start
@@ -58,6 +57,9 @@ export function UI(assets, ctx) {
             buffer.drawImage(this.imgs.up, (this.spriteEngine.getFrame() % 4) * 16, 0, 16, 16, cW / 3 + 420, cH / 4 + 280, 64, 64);
             buffer.drawImage(this.imgs.A_button, (this.spriteEngine.getFrame() % 4) * 16, 0, 16, 16, cW / 3 + 500, cH / 4 + 280, 64, 64);
             buffer.drawImage(this.imgs.X_button, (this.spriteEngine.getFrame() % 4) * 16, 0, 16, 16, cW / 3 + 570, cH / 4 + 280, 64, 64);
+            // Misc
+            buffer.drawImage(this.imgs.mouseDbl, (this.spriteEngine.getFrame() % 8) * 18, 0, 18, 29, cW / 3 + 200, cH / 4 + 355, 18 * 2.207, 29 * 2.207);
+
 
             ctx.drawImage(buffer.canvas, 0, 0, cW, cH, xUI, yUI, cW, cH);
         }

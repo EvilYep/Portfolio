@@ -126,12 +126,12 @@ export class Player {
     }
 
     runAwayYouFools(direction) {
-        this.stop();
+        //this.stop();
         this.run(direction);
         setTimeout(function() {
             this.stop();
             gameWindow.onmouseup();
-        }, 100);
+        }, 500);
     }
 
     runTo(position) {
@@ -154,11 +154,6 @@ export class Player {
                 }
             }, 6 * 225);
         }
-    }
-
-    flip(sprite) {
-        this.flipBuffer.drawImage(sprite, 0, 0);
-        return this.flipBuffer.canvas;
     }
 
     isRunning() {

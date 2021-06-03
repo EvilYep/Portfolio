@@ -39,13 +39,13 @@ export function ForeGround(assets, ctx, interactionMask) {
                     buffer.drawImage(this.imgs.Barrel4, 0, 0, 18, 26, tileX, tileY + 90, 18*3.5, 26*3.5);
                 }
                 if(value == 'N') {
-                    drawInteractable(this.imgs.Newspaper, 0, 0, 55, 30, tileX, tileY + 110, 55*2, 30*2, i + 1, interactionMask);
+                    this.drawInteractable(this.imgs.Newspaper, 0, 0, 55, 30, tileX, tileY + 110, 55*2, 30*2, interactionMask);
                 }
                 if(value == '!') {
                     buffer.drawImage(this.imgs.Pointer1, 0, 0, 32, 32, tileX, tileY + 80, tileSize / 1.5 - 10, tileSize / 1.5 - 10);
                 }
                 if (value == '?') {
-                    drawInteractable(this.imgs.Pointer2, 0, 0, 32, 32, tileX, tileY + 45, tileSize / 1.5, tileSize / 1.5, i + 1, interactionMask);
+                    this.drawInteractable(this.imgs.Pointer2, 0, 0, 32, 32, tileX, tileY + 45, tileSize / 1.5, tileSize / 1.5, interactionMask);
                     //clickables['interrogationSign'] = [tileX, tileY];
                     //neededStuffIDontKnowHowToCall[i][j] = value;
                 }
@@ -69,17 +69,17 @@ export function ForeGround(assets, ctx, interactionMask) {
                     if(lastHighlighted.includes('Cyborg') && INITIAL_DISTANCE < tileX - offset) {
                         tempImg = this.imgs.Cyborg_idle_L;
                     }
-                    drawInteractable(tempImg, (this.spriteEngine.getFrame() % 4) * 24, 0, 24, 48, tileX, tileY-30, 105, 210, i + 1, interactionMask);
+                    this.drawInteractable(tempImg, (this.spriteEngine.getFrame() % 4) * 24, 0, 24, 48, tileX, tileY-30, 105, 210, interactionMask);
                 }
                 if (value == 'P') {
                     tempImg = this.imgs.Punk_idle;
                     if(lastHighlighted.includes('Punk') && INITIAL_DISTANCE < tileX - offset) {
                         tempImg = this.imgs.Punk_idle_L;
                     }
-                    drawInteractable(tempImg, (this.spriteEngine.getFrame() % 4) * 24, 0, 24, 48, tileX, tileY-30, 105, 210, i + 1, interactionMask);
+                    this.drawInteractable(tempImg, (this.spriteEngine.getFrame() % 4) * 24, 0, 24, 48, tileX, tileY-30, 105, 210, interactionMask);
                 }
                 if (value == 'Y') {
-                    drawInteractable(this.imgs.Screen2, (this.spriteEngine.getFrame() % 4) * 32, 0, 32, 42, tileX, tileY - 5, tileSize - 40, tileSize, i + 1, interactionMask);
+                    this.drawInteractable(this.imgs.Screen2, (this.spriteEngine.getFrame() % 4) * 32, 0, 32, 42, tileX, tileY - 5, tileSize - 40, tileSize, interactionMask);
                 }
                 if (value == 'H') {
                     buffer.drawImage(this.imgs.Platform, (this.spriteEngine.getFrame() % 8) * 32, 0, 32, 32, tileX, tileY, tileSize / 2, tileSize / 2);
@@ -102,32 +102,32 @@ export function ForeGround(assets, ctx, interactionMask) {
         //ctx.fillRect(INITIAL_DISTANCE - 2, 0, 4, cH);
     }
 
+    this.drawInteractable = function(sprite, frame, z, cx, cy, x, y, sx, sy, ctx) {
+        let offsetArr = [-1,-1,0,-1,1,-1,-1,0,1,0,-1,1,0,1,1,1];
+        let hitbox = {}; 
+        let thick = 2;
+        ctx.fillStyle = 'lime';
+
+        hitbox = getHitbox(sprite, frame, z, cx, cy, x, y, sx, sy);
+        highlight = 'bla';
+
+        if(checkHover(hitbox) || checkCollision(hitbox)) {
+            highlight = sprite.src.split(/[\./]/).slice(-2, -1)[0];
+            lastHighlighted = sprite.src.split(/[\./]/).slice(-2, -1)[0];
+            for(let i = 0; i < offsetArr.length; i += 2) {
+                ctx.drawImage(sprite, frame, z, cx, cy, x - thick + offsetArr[i]*thick, y - thick + offsetArr[i+1] * thick, sx + thick * 2, sy + thick * 2 - 2);
+            }
+            
+            ctx.globalCompositeOperation = 'source-atop';
+            ctx.fillRect(x, y, sx + thick * 2, sy + thick * 2);
+            ctx.globalCompositeOperation = "source-over";
+        } 
+        // un comment to see hitboxes
+        //ctx.fillRect(hitbox.xMin + offset, y + hitbox.firstRow, hitbox.xMax - hitbox.xMin, hitbox.yMax - hitbox.yMin);
+
+        ctx.drawImage(sprite, frame, z, cx, cy, x, y, sx, sy);
+    }
+
     console.timeLog('time');
     console.log('Foreground Renderer® catapulted');
-}
-
-function drawInteractable(sprite, frame, z, cx, cy, x, y, sx, sy, row, ctx) {
-    let offsetArr = [-1,-1,0,-1,1,-1,-1,0,1,0,-1,1,0,1,1,1];
-    let hitbox = {}; 
-    let thick = 2;
-    ctx.fillStyle = 'lime';
-
-    hitbox = getHitbox(sprite, frame, z, cx, cy, x, y, sx, sy, row);
-    highlight = 'bla';
-
-    if(checkHover(hitbox) || checkCollision(hitbox)) {
-        highlight = sprite.src.split(/[\./]/).slice(-2, -1)[0];
-        lastHighlighted = sprite.src.split(/[\./]/).slice(-2, -1)[0];
-        for(let i = 0; i < offsetArr.length; i += 2) {
-            ctx.drawImage(sprite, frame, z, cx, cy, x - thick + offsetArr[i]*thick, y - thick + offsetArr[i+1] * thick, sx + thick * 2, sy + thick * 2 - 2);
-        }
-        
-        ctx.globalCompositeOperation = 'source-atop';
-        ctx.fillRect(x, y, sx + thick * 2, sy + thick * 2);
-        ctx.globalCompositeOperation = "source-over";
-    } 
-    // un comment to see hitboxes
-    //ctx.fillRect(hitbox.xMin + offset, y + hitbox.firstRow, hitbox.xMax - hitbox.xMin, hitbox.yMax - hitbox.yMin);
-
-    ctx.drawImage(sprite, frame, z, cx, cy, x, y, sx, sy);
 }

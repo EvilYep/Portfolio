@@ -1,5 +1,5 @@
 import { keys, mouseDown } from '../Input.js'
-import { paused } from '../main.js'
+import { distance, paused } from '../main.js'
 
 let k ='';
 let times = [];
@@ -22,6 +22,7 @@ export function drawDebugger(ctx, player) {
     ctx.fillText(mouseDown ? 'Mouse : down' : 'Mouse : up', 10, 120);
     ctx.fillText('yVelocity : ' + player.yVelocity, 10, 150);
     ctx.fillText(paused ? 'Paused' : 'Unpaused', 10, 180);
+    ctx.fillText('Distance ' + distance, 10, 210);
 }
 
 function getKeys() {

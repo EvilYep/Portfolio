@@ -84,7 +84,7 @@ export function attachInputListeners(gameWindow, player) {
 
     window.onkeyup = (e) => {
         keys[e.key] = false;
-        if (!player.isJumping()) {
+        if (!player.isJumping() && !(keys.ArrowRight || keys.ArrowLeft || keys.q || keys.Q || keys.a || keys.A || keys.d || keys.D)) {
             player.stop();
         }
         if(player.yVelocity < -2) {
@@ -151,7 +151,6 @@ export function processGamepadInput(player) {
                 buttonReady = true;
             }, 1000);
         }
-        //console.log(gamepad.axes[0]);
         if (buttonPressed(gamepad.buttons[0]) && !paused) { // A (Xbox) / X (PS)
             player.jump();
         }

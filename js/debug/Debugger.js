@@ -1,5 +1,5 @@
-import { keys, mouseDown } from '../Input.js'
-import { distance, paused } from '../main.js'
+import { keys, mouseDown } from '../Input.js';
+import { distance, paused } from '../main.js';
 
 let k ='';
 let times = [];
@@ -15,6 +15,8 @@ export function drawDebugger(ctx, player) {
     fps = times.length;
 
     ctx.fillStyle = 'orange';
+    ctx.font = '50px AtariST';
+    ctx.fillText('WORK IN PROGRESS', 700, 55);
     ctx.font = '30px AtariST';
     ctx.fillText('FPS : ' + Math.round(fps), 10, 30);
     ctx.fillText('Keys pressed : ' + getKeys(), 10, 60);

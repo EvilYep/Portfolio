@@ -13,6 +13,7 @@ export function UI(assets, ctx) {
     this.X = 0;
     this.Y = 0;
     this.hidden = false;
+    this.set = true;
     let buffer = document.createElement("canvas").getContext('2d');
     let textBuffer = document.createElement("canvas").getContext('2d');
 
@@ -30,7 +31,7 @@ export function UI(assets, ctx) {
 
             buffer.drawImage(this.imgs.pane_200x150, 0, 0, 200, 150, cW / 32, cH / 32, cW - cW / 16, cH - cH / 16);
             textBuffer.fillText('Pause / Start', 0, 40);
-            textBuffer.fillText('Move', 0, 180);
+            textBuffer.fillText('Run', 0, 180);
             textBuffer.fillText('Jump', 0, 320);
             textBuffer.fillText('Run To', 0, 460);
             buffer.drawImage(textBuffer.canvas, cW / 4 + 30, cH / 4 - 70);
@@ -70,7 +71,7 @@ export function UI(assets, ctx) {
         this.hideUIBottom();
         this.hidden = false;
         goUp = setInterval(() => {      // ()=> function
-            yUI -= 10;                  //      ||
+            yUI -= 20;                  //      ||
             if (yUI <= 0) {             //      ||
                 clearInterval(goUp);    //      \/
                 this.SetUI();           // pas besoin de let self = this; 
@@ -79,8 +80,9 @@ export function UI(assets, ctx) {
     }
 
     this.hideUI = function() {
+        this.set = false;
         goRight = setInterval(() => {
-            xUI += 10;
+            xUI += 20;
             if (xUI >= cW) {
                 clearInterval(goRight);
                 this.hideUIBottom();
@@ -98,5 +100,6 @@ export function UI(assets, ctx) {
     this.SetUI = function() {
         xUI = 0;
         yUI = 0;
+        this.set = true;
     }
 }

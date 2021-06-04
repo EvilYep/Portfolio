@@ -23,22 +23,14 @@ export let speed = 0;
 let player;
 let GUI;
 export let paused = true;
-let startPressed = false;
 
 export function togglePause() {
-    if(!startPressed) {            // prevents quick starting/pausing  with controllers (mine anyway)
-        startPressed = true;
-        setTimeout(() => {
-            startPressed = false;
-        }, 1000);
-
-        if (!paused) {
-            player.stop();
-            GUI.displayUI();
-        }
-        if (paused) {
-            GUI.hideUI();
-        }
+    if (!paused && GUI.hidden) {
+        player.stop();
+        GUI.displayUI();
+        paused = !paused;
+    }else if(paused && GUI.set) {
+        GUI.hideUI();
         paused = !paused;
     }
 }
@@ -134,6 +126,7 @@ function loadResources(assets, whenLoaded) {
 
 function initCanvas(assets) {
     console.log('assets loaded');
+    
 
     let background = new BackGround(assets, ctx);
     let foreground = new ForeGround(assets, ctx, interactionMask);

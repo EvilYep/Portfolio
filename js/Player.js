@@ -131,7 +131,7 @@ export class Player {
         setTimeout(function() {
             this.stop();
             gameWindow.onmouseup();
-        }, 500);
+        }, 300);
     }
 
     runTo(position) {

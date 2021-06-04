@@ -1,5 +1,5 @@
 import { SpriteEngine } from './SpriteEngine.js';
-import { refreshSmoothies, cH, cW } from './main.js';
+import { refreshSmoothies, cH, cW, paused } from './main.js';
 
 let xUI = 0; 
 let yUI = 0;
@@ -12,8 +12,8 @@ export function UI(assets, ctx) {
     this.spriteEngine.setSpeed(150);
     this.X = 0;
     this.Y = 0;
-    this.hidden = false;
-    this.set = true;
+    this.hidden = !paused;
+    this.set = paused;
     let buffer = document.createElement("canvas").getContext('2d');
     let textBuffer = document.createElement("canvas").getContext('2d');
 

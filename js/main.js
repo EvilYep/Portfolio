@@ -22,7 +22,7 @@ export let speed = 0;
 //let levelMap = Array.from(Array(ROWS), () => new Array(COLS));
 let player;
 let GUI;
-export let paused = true;
+export let paused = false;
 
 export function togglePause() {
     if (!paused && GUI.hidden) {
@@ -126,7 +126,6 @@ function loadResources(assets, whenLoaded) {
 
 function initCanvas(assets) {
     console.log('assets loaded');
-    
 
     let background = new BackGround(assets, ctx);
     let foreground = new ForeGround(assets, ctx, interactionMask);

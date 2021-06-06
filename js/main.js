@@ -9,6 +9,7 @@ import { drawDebugger } from './debug/Debugger.js';
 export let gameWindow = document.getElementById('my-canvas');
 let ctx = gameWindow.getContext('2d');
 let interactionMask = document.createElement("canvas").getContext('2d');
+let foreground;
 //Misc
 export let tileSize = LEVEL_TILE_SIZES.LG;
 export let distance = INITIAL_DISTANCE;
@@ -24,7 +25,7 @@ let player;
 export let collided = '';
 export let collected = [];
 let GUI;
-export let paused = false;
+export let paused = true;
 
 export function togglePause() {
     if (!paused && GUI.hidden) {
@@ -60,16 +61,16 @@ export function checkCollision(hitbox, object) {
         || (player.hitbox.right >= hitbox.xMin && player.hitbox.right <= hitbox.xMax) 
         || (player.hitbox.left <= hitbox.xMin && player.hitbox.right >= hitbox.xMax))) {
         collided = object.split(/[\./]/).slice(-2, -1)[0];
-        checkIfCollectible(collided);
-        
+        checkIfCollectible(collided, hitbox);
         return true;
     }
     return false;
 }
 
-function checkIfCollectible(object) {
+function checkIfCollectible(object, hitbox) {
     if(['Money'].includes(object) && !collected.includes(object)) {
         collected.push(object);
+        foreground.triggerAnim(object, hitbox, 33);
     }
 }
 
@@ -77,7 +78,7 @@ function prepareNextFrame() {
     // Render world depending on player's movements
     direction = player.direction;
     direction != 0 ? distance = distance + (Math.sign(player.direction) * SPEED) : distance;
-    // Has player tried to cross boundaries ?
+    // Has player tried to cross boundaries ? // You bad, bad player !
     if(distance <= INITIAL_DISTANCE) {
         player.runAwayYouFools(RIGHT);
     }
@@ -92,7 +93,7 @@ function initCanvas(assets) {
     console.timeLog('time', ' - Assets loaded');
 
     let background = new BackGround(assets, ctx);
-    let foreground = new ForeGround(assets, ctx, interactionMask);
+    foreground = new ForeGround(assets, ctx, interactionMask);
     GUI = new UI(assets, ctx);
     player = new Player(assets, ctx);
     Input.attachInputListeners(gameWindow, player);

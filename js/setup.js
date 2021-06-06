@@ -1,9 +1,9 @@
 const FPS = 75;
 const INITIAL_DISTANCE = 450;
 const DUDES_TILE_SIZE = 48;     // 48 px in the spritesheet
-const LEVEL_TILE_SIZES = {      //deprecated
+const LEVEL_TILE_SIZES = {      
     LG: 180,
-    SM: 140
+    SM: 140 //deprecated
 };
 const RIGHT = 1;
 const LEFT = -1;
@@ -57,6 +57,7 @@ const ASSETS = {
         "./assets/FX/IcePick_64x64.png",
         "./assets/FX/Hover_64x64.png",
         "./assets/FX/TornadoStatic_96x96.png",
+        "./assets/FX/MagicBarrier_64x64.png",
         "./assets/UI/mouse.png",
         "./assets/UI/mouseR.png",
         "./assets/UI/mouseDbl.png",

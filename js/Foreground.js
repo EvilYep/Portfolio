@@ -9,6 +9,7 @@ export function ForeGround(assets, ctx, interactionMask) {
     this.offset = offset;
     this.spriteEngine = new SpriteEngine(false);
     let buffer = document.createElement("canvas").getContext('2d');
+    this.ponctualAnim = null;
 
     this.render = function() {
         buffer.canvas.width = tileSize * COLS;
@@ -96,6 +97,16 @@ export function ForeGround(assets, ctx, interactionMask) {
                 //}
             }
         }        
+        
+        if (this.ponctualAnim) {
+            buffer.drawImage(this.imgs.MagicBarrier_64x64, (this.spriteEngine.getFrame() % this.ponctualAnim.fr) * 64, 0, 64, 64, 
+                tileSize * 7 - 25, 0, 128, 128);
+            if(this.spriteEngine.getFrame() >= this.ponctualAnim.fr - 1) {
+                this.spriteEngine.setSpeed(150);
+                this.ponctualAnim = null;
+            }
+        }
+
         ctx.drawImage(buffer.canvas, this.offset-=(direction * SPEED), buffer.canvas.height - cH, cW, cH, 0, 0, cW, cH);
         ctx.drawImage(interactionMask.canvas, this.offset-=(direction * SPEED), interactionMask.canvas.height - cH, cW, cH, 0, 0, cW, cH);
         // uncommment to see INITIAL_DISTANCE
@@ -125,16 +136,22 @@ export function ForeGround(assets, ctx, interactionMask) {
     }
 
     this.getHitbox = function(x, y, sx, sy, ctx) {
-    let hitbox = {
-        xMin: x - offset,
-        xMax: x - offset + sx,
-        yMin: cH - ctx.canvas.height + y,
-        yMax: cH - ctx.canvas.height + y + sy
+        let hitbox = {
+            xMin: x - offset,
+            xMax: x - offset + sx,
+            yMin: cH - ctx.canvas.height + y,
+            yMax: cH - ctx.canvas.height + y + sy
+        }
+        // un comment to see hitboxes
+        //interactionMask.fillRect(offset + hitbox.xMin, y + firstRow, hitbox.xMax - hitbox.xMin, hitbox.yMax - hitbox.yMin);
+        return hitbox;
+    } 
+
+    this.triggerAnim = function(object, hitbox, frames) {
+        this.ponctualAnim = {ob: object, hb: hitbox, fr: frames};
+        this.spriteEngine.setSpeed(15);
+        this.spriteEngine.resetFrame();
     }
-    // un comment to see hitboxes
-    //interactionMask.fillRect(offset + hitbox.xMin, y + firstRow, hitbox.xMax - hitbox.xMin, hitbox.yMax - hitbox.yMin);
-    return hitbox;
-} 
 
     console.timeLog('time', ' - Foreground Renderer® unbridled');
 }

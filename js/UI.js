@@ -1,5 +1,5 @@
 import { SpriteEngine } from './SpriteEngine.js';
-import { refreshSmoothies, cH, cW, paused } from './main.js';
+import { refreshSmoothies, cH, cW, paused, direction } from './main.js';
 
 let xUI = 0; 
 let yUI = 0;
@@ -18,7 +18,7 @@ export function UI(assets, ctx) {
     let textBuffer = document.createElement("canvas").getContext('2d');
 
     this.render = function() {
-        if (!this.hidden) {
+        if (!this.hidden) {                     // PAUSE MENU
             buffer.canvas.width = cW * 2;
             buffer.canvas.height = cH * 2;
             textBuffer.canvas.width = cW;
@@ -61,10 +61,8 @@ export function UI(assets, ctx) {
             // Misc
             buffer.drawImage(this.imgs.mouseDbl, (this.spriteEngine.getFrame() % 8) * 18, 0, 18, 29, cW / 3 + 200, cH / 4 + 355, 18 * 2.207, 29 * 2.207);
 
-
             ctx.drawImage(buffer.canvas, 0, 0, cW, cH, xUI, yUI, cW, cH);
         }
-        
     }
 
     this.displayUI = function() {

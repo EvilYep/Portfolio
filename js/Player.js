@@ -174,5 +174,9 @@ export class Player {
             this.hitbox.top = this.y + 60;
             this.hitbox.bottom = this.y + 210;
     }
+
+    say(stuff) {
+        // GUI.triggerAnim(say(stuff), this.hitbox))
+    }
 }
 

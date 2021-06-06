@@ -11,7 +11,7 @@ export class Player {
         this.yStatus = 'grounded';
         this.maxFrame = 4;
         this.facing = RIGHT;
-        this.speed = 0;
+        this.direction = 0;
         this.yVelocity = 0;
         this.y = this.ground - 210;
         this.stopWhenFrameIs = 0;
@@ -32,8 +32,7 @@ export class Player {
             top: this.ground - 150
         }
 
-        console.timeLog('time');
-        console.log('Player Renderer® unleashed');
+        console.timeLog('time', ' - Player Renderer® unleashed');
     }
     
     render() {
@@ -106,21 +105,21 @@ export class Player {
         }
         
         // uncomment to see player's hitbox
-        /* this.ctx.fillStyle = 'lime';
+        this.ctx.fillStyle = 'lime';
         this.ctx.fillRect(this.hitbox.left, this.ground - 150, 3, 150);
         this.ctx.fillRect(this.hitbox.left, this.ground, this.hitbox.right - this.hitbox.left, 3);
         this.ctx.fillRect(this.hitbox.left, this.ground - 150, this.hitbox.right - this.hitbox.left, 3);
-        this.ctx.fillRect(this.hitbox.right, this.ground - 150, 3, 150); */
+        this.ctx.fillRect(this.hitbox.right, this.ground - 150, 3, 150);
     }
 
     run(direction) {
         this.xStatus = 'running';
-        this.speed = direction;
+        this.direction = direction;
         this.facing = direction == LEFT ? LEFT : RIGHT;
     }
 
     stop() {
-        this.speed = 0;
+        this.direction = 0;
         this.xStatus = 'idle';
         this.currentFrame = 0;
     }
@@ -146,7 +145,7 @@ export class Player {
     jump() {
         if(!this.isJumping()) {
             this.yStatus = 'jumping';
-            this.spriteEngine.triggerAnimation(6, 225);
+            this.spriteEngine.triggerAnimation(6, 225); // nb of frames in the anim, time of each frame in ms
             this.yVelocity = -18;
             setTimeout(() => {
                 if(!(keys.q || keys.Q || keys.a || keys.A  || keys.d || keys.D || keys.ArrowLeft || keys.ArrowRight || mouseDown)) {

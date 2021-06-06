@@ -1,4 +1,4 @@
-import { refreshSmoothies, speed, cW, cH } from './main.js';
+import { refreshSmoothies, direction, cW, cH } from './main.js';
 import { SpriteEngine } from './SpriteEngine.js';
 
 export function BackGround(assets, ctx) {
@@ -20,27 +20,27 @@ export function BackGround(assets, ctx) {
         //Sky
         ctx.drawImage(this.imgs.bg1, 0, 0);
         //Clouds
-        ctx.drawImage(this.imgs.bg2, this.x4 -= (speed * SPEED) / 5 + 0.2, 0, this.scaling, 520);
+        ctx.drawImage(this.imgs.bg2, this.x4 -= (direction * SPEED) / 5 + 0.2, 0, this.scaling, 520);
         // Buildings and their FX
-        ctx.drawImage(this.imgs.FireBurst_64x64, ((this.spriteEngine.getFrame() + 14) % 29) * 64, 0, 64, 64, offsets[2] -= (speed * SPEED) / 3, cH - 660, 64, 64);
-        ctx.drawImage(this.imgs.FireBurst_64x64, ((this.spriteEngine.getFrame() + 7) % 29) * 64, 0, 64, 64, offsets[3] -= (speed * SPEED) / 3, cH - 692, 64, 64);
-        ctx.drawImage(this.imgs.bg3, this.x3 -= (speed * SPEED) / 3, cH - initH + 101, this.imgs.bg3.width * 1.9, 520);
+        ctx.drawImage(this.imgs.FireBurst_64x64, ((this.spriteEngine.getFrame() + 14) % 29) * 64, 0, 64, 64, offsets[2] -= (direction * SPEED) / 3, cH - 660, 64, 64);
+        ctx.drawImage(this.imgs.FireBurst_64x64, ((this.spriteEngine.getFrame() + 7) % 29) * 64, 0, 64, 64, offsets[3] -= (direction * SPEED) / 3, cH - 692, 64, 64);
+        ctx.drawImage(this.imgs.bg3, this.x3 -= (direction * SPEED) / 3, cH - initH + 101, this.imgs.bg3.width * 1.9, 520);
             // 2d layer
-        ctx.drawImage(this.imgs.FireBurst_64x64, ((this.spriteEngine.getFrame() + 10) % 29) * 64, 0, 64, 64, offsets[1] -= (speed * SPEED) / 2.5, cH - 790, 192, 192);
-        ctx.drawImage(this.imgs.FireBurst_64x64, ((this.spriteEngine.getFrame() + 23) % 29) * 64, 0, 64, 64, offsets[4] -= (speed * SPEED) / 2.5, cH - 683, 150, 150);
-        ctx.drawImage(this.drawRotated(this.imgs.TornadoStatic_96x96, 90, 89, 96), 0, 0, 96 * 2, 96 * 2, offsets[6] -= (speed * SPEED) / 2.5, cH - 606, 144, 144);
-        ctx.drawImage(this.drawRotated(this.imgs.IcePick_64x64, 90, 30, 64), 0, 0, 96 * 2, 96 * 2, offsets[7] -= (speed * SPEED) / 2.5, cH - 657, 256, 256);
-        ctx.drawImage(this.drawRotated(this.imgs.IcePick_64x64, 90, 30, 64), 0, 0, 96 * 2, 96 * 2, offsets[8] -= (speed * SPEED) / 2.5, cH - 727, 256, 256);
-        ctx.drawImage(this.imgs.FireBall_64x64, ((this.spriteEngine.getFrame() + 23) % 45) * 64, 0, 64, 64, offsets[10] -= (speed * SPEED) / 2.5, cH - 491, 32, 32);
-        ctx.drawImage(this.imgs.bg4, this.x2 -= (speed * SPEED) / 2.5, cH - initH + 170, this.imgs.bg4.width * 1.9, 520);
+        ctx.drawImage(this.imgs.FireBurst_64x64, ((this.spriteEngine.getFrame() + 10) % 29) * 64, 0, 64, 64, offsets[1] -= (direction * SPEED) / 2.5, cH - 790, 192, 192);
+        ctx.drawImage(this.imgs.FireBurst_64x64, ((this.spriteEngine.getFrame() + 23) % 29) * 64, 0, 64, 64, offsets[4] -= (direction * SPEED) / 2.5, cH - 683, 150, 150);
+        ctx.drawImage(this.drawRotated(this.imgs.TornadoStatic_96x96, 90, 89, 96), 0, 0, 96 * 2, 96 * 2, offsets[6] -= (direction * SPEED) / 2.5, cH - 606, 144, 144);
+        ctx.drawImage(this.drawRotated(this.imgs.IcePick_64x64, 90, 30, 64), 0, 0, 96 * 2, 96 * 2, offsets[7] -= (direction * SPEED) / 2.5, cH - 657, 256, 256);
+        ctx.drawImage(this.drawRotated(this.imgs.IcePick_64x64, 90, 30, 64), 0, 0, 96 * 2, 96 * 2, offsets[8] -= (direction * SPEED) / 2.5, cH - 727, 256, 256);
+        ctx.drawImage(this.imgs.FireBall_64x64, ((this.spriteEngine.getFrame() + 23) % 45) * 64, 0, 64, 64, offsets[10] -= (direction * SPEED) / 2.5, cH - 491, 32, 32);
+        ctx.drawImage(this.imgs.bg4, this.x2 -= (direction * SPEED) / 2.5, cH - initH + 170, this.imgs.bg4.width * 1.9, 520);
             //3rd layer
-        ctx.drawImage(this.imgs.FireBurst_64x64, (this.spriteEngine.getFrame() % 29) * 64, 0, 64, 64, offsets[0] -= (speed * SPEED) / 2, cH - 616, 128, 128);
-        ctx.drawImage(this.imgs.FireBurst_64x64, (this.spriteEngine.getFrame() % 29) * 64, 0, 64, 64, offsets[5] -= (speed * SPEED) / 2, cH - 616, 128, 128);
-        ctx.drawImage(this.drawRotated(this.imgs.FireBall_64x64, 105, 45, 64), 0, 0, 96 * 2, 96 * 2, offsets[9] -= (speed * SPEED) / 2, cH - 428, 128, 128);
-        ctx.drawImage(this.imgs.bg5, this.x -= (speed * SPEED) / 2, cH - initH + 162, this.imgs.bg5.width * 1.9, 520);
+        ctx.drawImage(this.imgs.FireBurst_64x64, (this.spriteEngine.getFrame() % 29) * 64, 0, 64, 64, offsets[0] -= (direction * SPEED) / 2, cH - 616, 128, 128);
+        ctx.drawImage(this.imgs.FireBurst_64x64, (this.spriteEngine.getFrame() % 29) * 64, 0, 64, 64, offsets[5] -= (direction * SPEED) / 2, cH - 616, 128, 128);
+        ctx.drawImage(this.drawRotated(this.imgs.FireBall_64x64, 105, 45, 64), 0, 0, 96 * 2, 96 * 2, offsets[9] -= (direction * SPEED) / 2, cH - 428, 128, 128);
+        ctx.drawImage(this.imgs.bg5, this.x -= (direction * SPEED) / 2, cH - initH + 162, this.imgs.bg5.width * 1.9, 520);
         
         //Road
-        ctx.drawImage(this.imgs.road, this.xRoad -= (speed * SPEED), cH - initH + 655, this.imgs.road.width, 325);
+        ctx.drawImage(this.imgs.road, this.xRoad -= (direction * SPEED), cH - initH + 655, this.imgs.road.width, 325);
         
         if(this.x4 <= -(this.scaling/3 - 1)) { this.x4 = 0; }
     }
@@ -55,6 +55,6 @@ export function BackGround(assets, ctx) {
         return this.flipBuffer.canvas;
     }
 
-    console.timeLog('time');
+    console.timeLog('time', ' - Background Renderer® launched');
     console.log('Background Renderer® launched');
 }

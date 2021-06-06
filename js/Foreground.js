@@ -1,8 +1,9 @@
-import { refreshSmoothies, checkHover, checkCollision, getHitbox, tileSize, cW, cH, offset, speed } from './main.js';
+import { refreshSmoothies, checkHover, checkCollision, getHitbox, tileSize, cW, cH, offset, direction } from './main.js';
 import { SpriteEngine } from './SpriteEngine.js';
 
 export let highlight = 'bla';
 let lastHighlighted = 'bla';
+let offsetArr = [-1,-1,0,-1,1,-1,-1,0,1,0,-1,1,0,1,1,1];
 
 export function ForeGround(assets, ctx, interactionMask) {
     this.imgs = assets; 
@@ -39,15 +40,13 @@ export function ForeGround(assets, ctx, interactionMask) {
                     buffer.drawImage(this.imgs.Barrel4, 0, 0, 18, 26, tileX, tileY + 90, 18*3.5, 26*3.5);
                 }
                 if(value == 'N') {
-                    this.drawInteractable(this.imgs.Newspaper, 0, 0, 55, 30, tileX, tileY + 110, 55*2, 30*2, interactionMask);
+                    this.drawInteractable(this.imgs.Newspaper, 0, 0, 53, 28, tileX, tileY + 110, 53*2, 28*2, interactionMask);
                 }
                 if(value == '!') {
                     buffer.drawImage(this.imgs.Pointer1, 0, 0, 32, 32, tileX, tileY + 80, tileSize / 1.5 - 10, tileSize / 1.5 - 10);
                 }
                 if (value == '?') {
-                    this.drawInteractable(this.imgs.Pointer2, 0, 0, 32, 32, tileX, tileY + 45, tileSize / 1.5, tileSize / 1.5, interactionMask);
-                    //clickables['interrogationSign'] = [tileX, tileY];
-                    //neededStuffIDontKnowHowToCall[i][j] = value;
+                    this.drawInteractable(this.imgs.Pointer2, 0, 0, 15, 26, tileX, tileY + 65, 15 * 4, 26 * 4, interactionMask);
                 }
                 if (value == '<') {
                     buffer.drawImage(this.imgs.Fence1, 0, 0, 32, 32, tileX, tileY + 30, tileSize, tileSize);
@@ -69,17 +68,17 @@ export function ForeGround(assets, ctx, interactionMask) {
                     if(lastHighlighted.includes('Cyborg') && INITIAL_DISTANCE < tileX - offset) {
                         tempImg = this.imgs.Cyborg_idle_L;
                     }
-                    this.drawInteractable(tempImg, (this.spriteEngine.getFrame() % 4) * 24, 0, 24, 48, tileX, tileY-30, 105, 210, interactionMask);
+                    this.drawInteractable(tempImg, (this.spriteEngine.getFrame() % 4) * 24, 0, 24, 35, tileX, tileY + 30, 105, 153.125, interactionMask);
                 }
                 if (value == 'P') {
                     tempImg = this.imgs.Punk_idle;
                     if(lastHighlighted.includes('Punk') && INITIAL_DISTANCE < tileX - offset) {
                         tempImg = this.imgs.Punk_idle_L;
                     }
-                    this.drawInteractable(tempImg, (this.spriteEngine.getFrame() % 4) * 24, 0, 24, 48, tileX, tileY-30, 105, 210, interactionMask);
+                    this.drawInteractable(tempImg, (this.spriteEngine.getFrame() % 4) * 24, 0, 24, 34, tileX, tileY + 30, 105, 148.75, interactionMask);
                 }
                 if (value == 'Y') {
-                    this.drawInteractable(this.imgs.Screen2, (this.spriteEngine.getFrame() % 4) * 32, 0, 32, 42, tileX, tileY - 5, tileSize - 40, tileSize, interactionMask);
+                    this.drawInteractable(this.imgs.Screen2, (this.spriteEngine.getFrame() % 4) * 18, 0, 18, 34, tileX, tileY + 30, 72, 136, interactionMask);
                 }
                 if (value == 'H') {
                     buffer.drawImage(this.imgs.Platform, (this.spriteEngine.getFrame() % 8) * 32, 0, 32, 32, tileX, tileY, tileSize / 2, tileSize / 2);
@@ -87,7 +86,7 @@ export function ForeGround(assets, ctx, interactionMask) {
 
                 //uncomment to see grid
                 //ctx.fillStyle = 'orange';
-                //for (let i = 0; i < ROWS; i++) {
+                //for (let i = 0; i < ROWS + 1; i++) {
                 //   buffer.fillRect(0, tileY * i - 1, cW * 3, 3);
                 //}
                 //for (let i = 0; i < COLS; i++) {
@@ -95,20 +94,19 @@ export function ForeGround(assets, ctx, interactionMask) {
                 //}
             }
         }        
-        ctx.drawImage(buffer.canvas, this.offset-=(speed * SPEED), buffer.canvas.height - cH, cW, cH, 0, 0, cW, cH);
-        ctx.drawImage(interactionMask.canvas, this.offset-=(speed * SPEED), interactionMask.canvas.height - cH, cW, cH, 0, 0, cW, cH);
+        ctx.drawImage(buffer.canvas, this.offset-=(direction * SPEED), buffer.canvas.height - cH, cW, cH, 0, 0, cW, cH);
+        ctx.drawImage(interactionMask.canvas, this.offset-=(direction * SPEED), interactionMask.canvas.height - cH, cW, cH, 0, 0, cW, cH);
         // uncommment to see INITIAL_DISTANCE
         //ctx.fillStyle = 'red';       
         //ctx.fillRect(INITIAL_DISTANCE - 2, 0, 4, cH);
     }
 
     this.drawInteractable = function(sprite, frame, z, cx, cy, x, y, sx, sy, ctx) {
-        let offsetArr = [-1,-1,0,-1,1,-1,-1,0,1,0,-1,1,0,1,1,1];
         let hitbox = {}; 
         let thick = 2;
         ctx.fillStyle = 'lime';
 
-        hitbox = getHitbox(sprite, frame, z, cx, cy, x, y, sx, sy);
+        hitbox = getHitbox(x, y, sx, sy);
         highlight = 'bla';
 
         if(checkHover(hitbox) || checkCollision(hitbox)) {
@@ -119,15 +117,12 @@ export function ForeGround(assets, ctx, interactionMask) {
             }
             
             ctx.globalCompositeOperation = 'source-atop';
-            ctx.fillRect(x, y, sx + thick * 2, sy + thick * 2);
+            ctx.fillRect(x - 4, y - 4, sx + thick * 2 + 4, sy + thick * 2 + 4);
             ctx.globalCompositeOperation = "source-over";
         } 
-        // un comment to see hitboxes
-        //ctx.fillRect(hitbox.xMin + offset, y + hitbox.firstRow, hitbox.xMax - hitbox.xMin, hitbox.yMax - hitbox.yMin);
 
         ctx.drawImage(sprite, frame, z, cx, cy, x, y, sx, sy);
     }
 
-    console.timeLog('time');
-    console.log('Foreground Renderer® catapulted');
+    console.timeLog('time', ' - Foreground Renderer® unbridled');
 }

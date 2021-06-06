@@ -9,7 +9,7 @@ export let gamepads;
 let interval;
 let k = '';
 let buttonReady = true;
-let mouseDTime, mouseUTime; 3
+let mouseDTime, mouseUTime;
 let dblclick = false;
 let lastKey;
 
@@ -57,7 +57,7 @@ export function attachInputListeners(gameWindow, player) {
                 startMove(e, player);
                 //gameWindow.addEventListener('mousemove', startMove(e));
             }
-            if (e.clientY < player.hitbox.top - 100) {
+            if (e.clientY < player.hitbox.top - 50) {
                 player.jump();
             }
         }
@@ -110,7 +110,7 @@ export function attachInputListeners(gameWindow, player) {
         interval = setInterval(pollGamepads, 100);
     }
     
-    console.log('Controllers plugged');
+    console.timeLog('time',  ' - Controllers plugged');
 }
 
 function pollGamepads() {

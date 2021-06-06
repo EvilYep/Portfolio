@@ -5,8 +5,6 @@ export class SpriteEngine {
         this.currentFrame = 0;
         this.animationFrames = 4;
         this.animationComplete = true;
-        console.timeLog('time');  
-        console.log('Sprite Engine® unbridled');
         this.animateSprites();
     }
 

@@ -18,7 +18,7 @@ let lastRenderTime;
 export let offset = distance - INITIAL_DISTANCE;
 export let cW = document.documentElement.clientWidth;
 export let cH = document.documentElement.clientHeight;
-export let speed = 0;
+export let direction = 0;
 //let levelMap = Array.from(Array(ROWS), () => new Array(COLS));
 let player;
 let GUI;
@@ -45,37 +45,17 @@ export function refreshSmoothies(ctx) {
     ctx.webkitImageSmoothingEnabled = false, ctx.msImageSmoothingEnabled = false, ctx.imageSmoothingEnabled = false;
 }
 
-export function getHitbox(sprite, frame, z, cx, cy, x, y, sx, sy) {
-    let firstRow = sy, firstCol = sx, lastRow = 0, lastCol = 0;
-
-    interactionMask.drawImage(sprite, frame, z, cx, cy, x, y, sx, sy);
-    let imgData = interactionMask.getImageData(x, y, sx, sy);
-    let pixels = imgData.data;
-    
-    for (let i = 0; i < pixels.length; i += 4) {    // 4 data per pixel (R,G,B,opacity)
-        if(pixels[i+3] == 255) { // opaque pixel
-            if(firstRow > Math.floor(Math.floor((i + 1) / 4) / sx)) {
-                firstRow = Math.floor(Math.floor((i + 1) / 4) / sx);
-            }
-            if(firstCol > Math.floor((i + 1) / 4) % sx) {
-                firstCol = Math.floor((i + 1) / 4) % sx;
-            }
-            if(lastRow < Math.floor(Math.floor(i + 1) / 4) / sx) {
-                lastRow = Math.floor(Math.floor(i + 1) / 4) / sx;
-            }
-            if(lastCol < Math.floor((i + 1) / 4) % sx) {
-                lastCol = Math.floor((i + 1) / 4) % sx;
-            }
-        }
-    }
+export function getHitbox(x, y, sx, sy) {
     let hitbox = {
-        xMin: x + firstCol - offset,
-        xMax: x + lastCol - offset,
-        yMin: (cH - interactionMask.canvas.height + y + firstRow),
-        yMax: (cH - interactionMask.canvas.height + y + lastRow)
+        xMin: x - offset,
+        xMax: x - offset + sx,
+        yMin: cH - interactionMask.canvas.height + y,
+        yMax: cH - interactionMask.canvas.height + y + sy
     }
+    // un comment to see hitboxes
+    //interactionMask.fillRect(offset + hitbox.xMin, y + firstRow, hitbox.xMax - hitbox.xMin, hitbox.yMax - hitbox.yMin);
     return hitbox;
-}
+} 
 
 export function checkHover(hitbox) {
     if(Input.xMouse >= hitbox.xMin && Input.xMouse <= hitbox.xMax && Input.yMouse >= hitbox.yMin && Input.yMouse <= hitbox.yMax) {
@@ -96,8 +76,8 @@ export function checkCollision(hitbox) {
 
 function prepareNextFrame() {
     // Render world depending on player's movements
-    speed = player.speed;
-    speed != 0 ? distance = distance + (Math.sign(player.speed) * SPEED) : distance;
+    direction = player.direction;
+    direction != 0 ? distance = distance + (Math.sign(player.direction) * SPEED) : distance;
     // Has player tried to cross boundaries ?
     if(distance <= INITIAL_DISTANCE) {
         player.runAwayYouFools(RIGHT);
@@ -107,35 +87,16 @@ function prepareNextFrame() {
     }
 }
 
-// Credits to this guy for this one ! https://github.com/shubhamjain/penguin-walk
-function loadResources(assets, whenLoaded) {
-	let imgs = {}, imgCounter = 0;
-  	assets.IMGS.forEach(function(path){
-		let img = document.createElement('img');
-		img.src = path;
-		let fileName = path.split(/[\./]/).slice(-2, -1)[0];
-		img.onload = function(){
-			imgs[fileName] = img;
-			imgCounter++;
-			assets.IMGS.length == imgCounter ? whenLoaded(imgs) : console.log('suspenseful loading time...');	
-		};
-	});
-}
-
 // MAIN LOOP FUNCTION
 
 function initCanvas(assets) {
-    console.log('assets loaded');
+    console.timeLog('time', ' - Assets loaded');
 
     let background = new BackGround(assets, ctx);
     let foreground = new ForeGround(assets, ctx, interactionMask);
     GUI = new UI(assets, ctx);
     player = new Player(assets, ctx);
     Input.attachInputListeners(gameWindow, player);
-
-    console.timeEnd('time');
-    console.log('Nuts Portfolio® game initiated');
-    
 
     function animateGlobal(currentTime) {
         requestId = window.requestAnimationFrame(animateGlobal);
@@ -163,6 +124,9 @@ function initCanvas(assets) {
         prepareNextFrame();
     }
 
+    console.timeLog('time', ' - Nuts Portfolio® game initiated');
+    console.timeEnd('time');
+    
     animateGlobal();
 }
 
@@ -182,5 +146,25 @@ window.onerror = (errorMsg, url, line, col, error) => {
 
 window.addEventListener('load', function(e) {
     console.time('time');
+    ctx.fillStyle = "blue";
+    ctx.font = "bold 16px Arial";
+    ctx.fillText("Loading", (ctx.width / 2) - 17, (ctx.height / 2) + 8);
     loadResources(ASSETS, initCanvas);
 });
+
+// Credits to this guy for this one ! https://github.com/shubhamjain/penguin-walk
+function loadResources(assets, whenLoaded) {
+    document.fonts.load('30px AtariST').then(() => {
+        let imgs = {}, imgCounter = 0;
+        assets.IMGS.forEach(function(path){
+            let img = document.createElement('img');
+            img.src = path;
+            let fileName = path.split(/[\./]/).slice(-2, -1)[0];
+            img.onload = function(){
+                imgs[fileName] = img;
+                imgCounter++;
+                assets.IMGS.length == imgCounter ? whenLoaded(imgs) : console.log('suspenseful loading time...');	
+            };
+        });
+    });
+}

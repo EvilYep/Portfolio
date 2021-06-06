@@ -1,4 +1,4 @@
-const FPS = 60;
+const FPS = 75;
 const INITIAL_DISTANCE = 450;
 const DUDES_TILE_SIZE = 48;     // 48 px in the spritesheet
 const LEVEL_TILE_SIZES = {      //deprecated
@@ -32,10 +32,10 @@ const ASSETS = {
         "./assets/player/Biker_run.png", 
         "./assets/player/Biker_jump.png",
         "./assets/player/Biker_doublejump.png",
-        "./assets/NPCS/Cyborg_idle.png", 
-        "./assets/NPCS/Cyborg_idle_L.png", 
-        "./assets/NPCS/Punk_idle.png", 
-        "./assets/NPCS/Punk_idle_L.png", 
+        "./assets/NPCs/Cyborg_idle.png", 
+        "./assets/NPCs/Cyborg_idle_L.png", 
+        "./assets/NPCs/Punk_idle.png", 
+        "./assets/NPCs/Punk_idle_L.png", 
         "./assets/objects/Pointer1.png", 
         "./assets/objects/Pointer2.png",
         "./assets/objects/Fence1.png", 

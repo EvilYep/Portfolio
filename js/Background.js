@@ -52,7 +52,7 @@ export function BackGround(assets, ctx) {
         //this.xDelorean -= (direction * SPEED) / 2.75 + 1.5
         
         if(this.x4 <= -(this.scaling/3 - 1)) { this.x4 = 0; }
-        if(this.xDelorean <= -10000) { this.xDelorean = 10000 }
+        if(this.xDelorean <= -2000) { this.xDelorean = 3600; this.xD1 = 3507; this.xD2 = 3605;  }
     }
 
     this.drawRotated = function(sprite, degrees, frames, size){  

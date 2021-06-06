@@ -1,8 +1,7 @@
-import { refreshSmoothies, checkHover, checkCollision, tileSize, cW, cH, offset, direction } from './main.js';
+import { refreshSmoothies, checkHover, checkCollision, tileSize, cW, cH, offset, direction, collected } from './main.js';
 import { SpriteEngine } from './SpriteEngine.js';
 
-export let highlight = 'bla';
-let lastHighlighted = 'bla';
+export let lastHighlighted = '';
 let offsetArr = [-1,-1,0,-1,1,-1,-1,0,1,0,-1,1,0,1,1,1];
 
 export function ForeGround(assets, ctx, interactionMask) {
@@ -63,7 +62,7 @@ export function ForeGround(assets, ctx, interactionMask) {
                 if (value == 'L') {
                     buffer.drawImage(this.imgs.Ladder, 0, 0, 32, 44, tileX, tileY + 140, 32*5, 44*5);
                 }
-                if (value == '$') {
+                if (value == '$' && !collected.includes('Money')) {
                     this.drawInteractable(this.imgs.Money, (this.spriteEngine.getFrame() % 6) * 20, 0, 20, 16, tileX, tileY + 30, 20 * 4, 16 * 4, interactionMask);
                 }
                 if (value == 'C') {
@@ -110,10 +109,8 @@ export function ForeGround(assets, ctx, interactionMask) {
         ctx.fillStyle = 'lime';
 
         hitbox = this.getHitbox(x, y, sx, sy, ctx);
-        highlight = 'bla';
 
-        if(checkHover(hitbox) || checkCollision(hitbox)) {
-            highlight = sprite.src.split(/[\./]/).slice(-2, -1)[0];
+        if(checkHover(hitbox) || checkCollision(hitbox, sprite.src)) {
             lastHighlighted = sprite.src.split(/[\./]/).slice(-2, -1)[0];
             for(let i = 0; i < offsetArr.length; i += 2) {
                 ctx.drawImage(sprite, frame, z, cx, cy, x - thick + offsetArr[i]*thick, y - thick + offsetArr[i+1] * thick, sx + thick * 2, sy + thick * 2 - 2);
@@ -122,7 +119,7 @@ export function ForeGround(assets, ctx, interactionMask) {
             ctx.globalCompositeOperation = 'source-atop';
             ctx.fillRect(x - 4, y - 4, sx + thick * 2 + 4, sy + thick * 2 + 4);
             ctx.globalCompositeOperation = "source-over";
-        } 
+        }
 
         ctx.drawImage(sprite, frame, z, cx, cy, x, y, sx, sy);
     }

@@ -1,5 +1,5 @@
 import { keys, mouseDown } from '../Input.js';
-import { distance, offset, paused } from '../main.js';
+import { distance, offset, paused, collided, collected } from '../main.js';
 
 let k ='';
 let times = [];
@@ -23,10 +23,12 @@ export function drawDebugger(ctx, player) {
         'Player hitbox  L:' + player.hitbox.left + ' R:' + player.hitbox.right +  ' T:' + player.hitbox.top +  ' B:' + player.hitbox.bottom + '-' + player.y,
         'Distance : ' + distance + ' -  Offset : ' +  offset,
         'yVelocity : ' + player.yVelocity,
-        paused ? 'Paused' : 'Unpaused',
-        mouseDown ? 'Mouse : down' : 'Mouse : up',
-        'Keys pressed : ' + getKeys(),
         'Player status : ' + player.xStatus + ' ' + player.yStatus,
+        'Last collision with : ' + collided,
+        'Keys pressed : ' + getKeys(),
+        mouseDown ? 'Mouse : down' : 'Mouse : up',
+        paused ? 'Paused' : 'Unpaused',
+        'collected : ' + collected,
     ];
     let i = 30;
     debugs.forEach((d) => {

@@ -21,6 +21,8 @@ export let cH = document.documentElement.clientHeight;
 export let direction = 0;
 //let levelMap = Array.from(Array(ROWS), () => new Array(COLS));
 let player;
+export let collided = '';
+export let collected = [];
 let GUI;
 export let paused = false;
 
@@ -52,14 +54,23 @@ export function checkHover(hitbox) {
     return false;
 }
 
-export function checkCollision(hitbox) {
+export function checkCollision(hitbox, object) {
     if(player.hitbox.top <= hitbox.yMax && player.hitbox.bottom >= hitbox.yMin &&
         ((player.hitbox.left >= hitbox.xMin && player.hitbox.left <= hitbox.xMax) 
         || (player.hitbox.right >= hitbox.xMin && player.hitbox.right <= hitbox.xMax) 
         || (player.hitbox.left <= hitbox.xMin && player.hitbox.right >= hitbox.xMax))) {
+        collided = object.split(/[\./]/).slice(-2, -1)[0];
+        checkIfCollectible(collided);
+        
         return true;
     }
     return false;
+}
+
+function checkIfCollectible(object) {
+    if(['Money'].includes(object) && !collected.includes(object)) {
+        collected.push(object);
+    }
 }
 
 function prepareNextFrame() {
@@ -107,7 +118,7 @@ function initCanvas(assets) {
         player.render();
         GUI.render();
 
-        //drawDebugger(ctx, player);
+        drawDebugger(ctx, player);
         
         prepareNextFrame();
     }

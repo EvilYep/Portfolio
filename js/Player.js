@@ -29,7 +29,8 @@ export class Player {
         this.hitbox = {
             left: INITIAL_DISTANCE + 20,
             right: INITIAL_DISTANCE + 120,
-            top: this.ground - 150
+            top: this.ground - 150,
+            bottom: this.ground
         }
 
         console.timeLog('time', ' - Player Renderer® unleashed');
@@ -74,6 +75,7 @@ export class Player {
 
         if (this.isJumping()) {
             this.yVelocity += GRAVITY;
+            this.attachHitbox();
         }
 
         this.y += this.yVelocity;
@@ -81,6 +83,7 @@ export class Player {
         if(this.y >= this.ground - 210) {
             this.yVelocity = 0;
             this.y = this.ground - 210;
+            this.attachHitbox();
             this.yStatus = 'grounded';
         }
 
@@ -106,10 +109,10 @@ export class Player {
         
         // uncomment to see player's hitbox
         this.ctx.fillStyle = 'lime';
-        this.ctx.fillRect(this.hitbox.left, this.ground - 150, 3, 150);
-        this.ctx.fillRect(this.hitbox.left, this.ground, this.hitbox.right - this.hitbox.left, 3);
-        this.ctx.fillRect(this.hitbox.left, this.ground - 150, this.hitbox.right - this.hitbox.left, 3);
-        this.ctx.fillRect(this.hitbox.right, this.ground - 150, 3, 150);
+        this.ctx.fillRect(this.hitbox.left, this.hitbox.top, 3, 150);
+        this.ctx.fillRect(this.hitbox.left, this.hitbox.bottom, this.hitbox.right - this.hitbox.left, 3);
+        this.ctx.fillRect(this.hitbox.left, this.hitbox.top, this.hitbox.right - this.hitbox.left, 3);
+        this.ctx.fillRect(this.hitbox.right, this.hitbox.top, 3, 150);
     }
 
     run(direction) {
@@ -165,6 +168,11 @@ export class Player {
 
     getDirection() {
         return this.facing;
+    }
+
+    attachHitbox() {
+            this.hitbox.top = this.y + 60;
+            this.hitbox.bottom = this.y + 210;
     }
 }
 

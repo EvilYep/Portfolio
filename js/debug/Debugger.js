@@ -18,21 +18,29 @@ export function drawDebugger(ctx, player) {
     ctx.font = '50px AtariST';
     ctx.fillText('WORK IN PROGRESS', 700, 55);
     ctx.font = '30px AtariST';
-    ctx.fillText('FPS : ' + Math.round(fps) + ' / ' + FPS, 10, 30);
-    ctx.fillText('Keys pressed : ' + getKeys(), 10, 60);
-    ctx.fillText('Player status : ' + player.xStatus + ' ' + player.yStatus, 10, 90);
-    ctx.fillText(mouseDown ? 'Mouse : down' : 'Mouse : up', 10, 120);
-    ctx.fillText('yVelocity : ' + player.yVelocity, 10, 150);
-    ctx.fillText(paused ? 'Paused' : 'Unpaused', 10, 180);
-    ctx.fillText('Distance ' + distance + ' -  Offset : ' +  offset, 10, 210);
+    let debugs = [
+        'FPS : ' + Math.round(fps) + ' / ' + FPS + ' max',
+        'Player hitbox  L:' + player.hitbox.left + ' R:' + player.hitbox.right +  ' T:' + player.hitbox.top +  ' B:' + player.hitbox.bottom + '-' + player.y,
+        'Distance : ' + distance + ' -  Offset : ' +  offset,
+        'yVelocity : ' + player.yVelocity,
+        paused ? 'Paused' : 'Unpaused',
+        mouseDown ? 'Mouse : down' : 'Mouse : up',
+        'Keys pressed : ' + getKeys(),
+        'Player status : ' + player.xStatus + ' ' + player.yStatus,
+    ];
+    let i = 30;
+    debugs.forEach((d) => {
+        ctx.fillText(d, 10, i);
+        i += 30;
+    })
 }
 
 function getKeys() {
-  k= '';
-  Object.entries(keys).forEach(e => {
-    if(e[1]) {
-      k += e[0] == ' ' ? ' space ' : ' ' + e[0] + ' ';
-    }
-  });
-  return k;
+    k= '';
+    Object.entries(keys).forEach(e => {
+        if(e[1]) {
+        k += e[0] == ' ' ? ' space ' : ' ' + e[0] + ' ';
+        }
+    });
+    return k;
 }

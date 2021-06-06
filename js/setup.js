@@ -13,7 +13,7 @@ const GRAVITY = 0.6;
 //const PX_PER_FRAME = 6;
 //const PX_PER_SEC = PX_PER_FRAME * 60;
 const LEVEL_LAYOUT = [
-    [ 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ],
+    [ 0 , 0 , 0 , 0 , 0 , 0 , 0 ,'$', 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ],
     ['!', 1 , 0 , 0 ,'?', 3 , 0 , 0 ,'N', 4 ,'C', 0 , 0 , 2 ,'Y', 0 , 0 , 1 , 0 , 0 , 0 , 2 , 0 , 0 , 0 , 4 ,'P', 0 , 0 , 3 ,'!'],
     ['!', 0 ,'<','T','>', 0 ,'b','<','>','L','<','T','>', 0 , 0 ,'<','T','T','>', 0 ,'L', 0 ,'<','T','>', 0 , 0 ,'H','<','>','!']
 ];
@@ -50,9 +50,12 @@ const ASSETS = {
         "./assets/objects/Barrel2.png", 
         "./assets/objects/Barrel3.png", 
         "./assets/objects/Barrel4.png", 
+        "./assets/objects/delorean.png", 
+        "./assets/objects/Money.png", 
         "./assets/FX/FireBurst_64x64.png",
         "./assets/FX/FireBall_64x64.png",
         "./assets/FX/IcePick_64x64.png",
+        "./assets/FX/Hover_64x64.png",
         "./assets/FX/TornadoStatic_96x96.png",
         "./assets/UI/mouse.png",
         "./assets/UI/mouseR.png",

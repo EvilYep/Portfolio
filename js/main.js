@@ -45,18 +45,6 @@ export function refreshSmoothies(ctx) {
     ctx.webkitImageSmoothingEnabled = false, ctx.msImageSmoothingEnabled = false, ctx.imageSmoothingEnabled = false;
 }
 
-export function getHitbox(x, y, sx, sy) {
-    let hitbox = {
-        xMin: x - offset,
-        xMax: x - offset + sx,
-        yMin: cH - interactionMask.canvas.height + y,
-        yMax: cH - interactionMask.canvas.height + y + sy
-    }
-    // un comment to see hitboxes
-    //interactionMask.fillRect(offset + hitbox.xMin, y + firstRow, hitbox.xMax - hitbox.xMin, hitbox.yMax - hitbox.yMin);
-    return hitbox;
-} 
-
 export function checkHover(hitbox) {
     if(Input.xMouse >= hitbox.xMin && Input.xMouse <= hitbox.xMax && Input.yMouse >= hitbox.yMin && Input.yMouse <= hitbox.yMax) {
         return true;
@@ -65,7 +53,7 @@ export function checkHover(hitbox) {
 }
 
 export function checkCollision(hitbox) {
-    if(player.hitbox.top <= hitbox.yMax && 
+    if(player.hitbox.top <= hitbox.yMax && player.hitbox.bottom >= hitbox.yMin &&
         ((player.hitbox.left >= hitbox.xMin && player.hitbox.left <= hitbox.xMax) 
         || (player.hitbox.right >= hitbox.xMin && player.hitbox.right <= hitbox.xMax) 
         || (player.hitbox.left <= hitbox.xMin && player.hitbox.right >= hitbox.xMax))) {
@@ -119,7 +107,7 @@ function initCanvas(assets) {
         player.render();
         GUI.render();
 
-        drawDebugger(ctx, player);
+        //drawDebugger(ctx, player);
         
         prepareNextFrame();
     }

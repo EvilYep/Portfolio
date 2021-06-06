@@ -6,6 +6,7 @@ export function BackGround(assets, ctx) {
     this.spriteEngine.setSpeed(50);
     this.imgs = assets; 
     this.x = 0, this.x2 = 0, this.x3 = 0, this.x4 = 0, this.xRoad = 0, this.y = 0; 
+    this.xDelorean = 3600, this.xD1 = 3507, this.xD2 = 3605; 
     this.scaling = cW / 0.5;
     let initH = 970;
     let offsets = [310, 1068, 1867, 3318, 2358, 3592, 1814, 864, 2822, 1617, 2502];
@@ -33,6 +34,10 @@ export function BackGround(assets, ctx) {
         ctx.drawImage(this.drawRotated(this.imgs.IcePick_64x64, 90, 30, 64), 0, 0, 96 * 2, 96 * 2, offsets[8] -= (direction * SPEED) / 2.5, cH - 727, 256, 256);
         ctx.drawImage(this.imgs.FireBall_64x64, ((this.spriteEngine.getFrame() + 23) % 45) * 64, 0, 64, 64, offsets[10] -= (direction * SPEED) / 2.5, cH - 491, 32, 32);
         ctx.drawImage(this.imgs.bg4, this.x2 -= (direction * SPEED) / 2.5, cH - initH + 170, this.imgs.bg4.width * 1.9, 520);
+            //Delorean
+        ctx.drawImage(this.drawRotated(this.imgs.Hover_64x64, -90, 45, 64), 0, 0, 64 * 3, 64 * 3, this.xD1-= (direction * SPEED) / 2.75 + 1, cH - 500, 64 * 3, 64 * 2);
+        ctx.drawImage(this.drawRotated(this.imgs.Hover_64x64, -90, 45, 64), 0, 0, 64 * 3, 64 * 3, this.xD2-= (direction * SPEED) / 2.75 + 1, cH - 500, 64 * 3, 64 * 2);
+        ctx.drawImage(this.imgs.delorean, this.xDelorean -= (direction * SPEED) / 2.75 + 1, cH - 500, 68 * 2.5, 20 * 2.5);
             //3rd layer
         ctx.drawImage(this.imgs.FireBurst_64x64, (this.spriteEngine.getFrame() % 29) * 64, 0, 64, 64, offsets[0] -= (direction * SPEED) / 2, cH - 616, 128, 128);
         ctx.drawImage(this.imgs.FireBurst_64x64, (this.spriteEngine.getFrame() % 29) * 64, 0, 64, 64, offsets[5] -= (direction * SPEED) / 2, cH - 616, 128, 128);
@@ -41,8 +46,13 @@ export function BackGround(assets, ctx) {
         
         //Road
         ctx.drawImage(this.imgs.road, this.xRoad -= (direction * SPEED), cH - initH + 655, this.imgs.road.width, 325);
+
+        
+        
+        //this.xDelorean -= (direction * SPEED) / 2.75 + 1.5
         
         if(this.x4 <= -(this.scaling/3 - 1)) { this.x4 = 0; }
+        if(this.xDelorean <= -10000) { this.xDelorean = 10000 }
     }
 
     this.drawRotated = function(sprite, degrees, frames, size){  
@@ -56,5 +66,4 @@ export function BackGround(assets, ctx) {
     }
 
     console.timeLog('time', ' - Background Renderer® launched');
-    console.log('Background Renderer® launched');
 }

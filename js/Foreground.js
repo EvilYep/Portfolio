@@ -1,4 +1,4 @@
-import { refreshSmoothies, checkHover, checkCollision, getHitbox, tileSize, cW, cH, offset, direction } from './main.js';
+import { refreshSmoothies, checkHover, checkCollision, tileSize, cW, cH, offset, direction } from './main.js';
 import { SpriteEngine } from './SpriteEngine.js';
 
 export let highlight = 'bla';
@@ -63,6 +63,9 @@ export function ForeGround(assets, ctx, interactionMask) {
                 if (value == 'L') {
                     buffer.drawImage(this.imgs.Ladder, 0, 0, 32, 44, tileX, tileY + 140, 32*5, 44*5);
                 }
+                if (value == '$') {
+                    this.drawInteractable(this.imgs.Money, (this.spriteEngine.getFrame() % 6) * 20, 0, 20, 16, tileX, tileY + 30, 20 * 4, 16 * 4, interactionMask);
+                }
                 if (value == 'C') {
                     tempImg = this.imgs.Cyborg_idle;
                     if(lastHighlighted.includes('Cyborg') && INITIAL_DISTANCE < tileX - offset) {
@@ -106,7 +109,7 @@ export function ForeGround(assets, ctx, interactionMask) {
         let thick = 2;
         ctx.fillStyle = 'lime';
 
-        hitbox = getHitbox(x, y, sx, sy);
+        hitbox = this.getHitbox(x, y, sx, sy, ctx);
         highlight = 'bla';
 
         if(checkHover(hitbox) || checkCollision(hitbox)) {
@@ -124,5 +127,18 @@ export function ForeGround(assets, ctx, interactionMask) {
         ctx.drawImage(sprite, frame, z, cx, cy, x, y, sx, sy);
     }
 
+    this.getHitbox = function(x, y, sx, sy, ctx) {
+    let hitbox = {
+        xMin: x - offset,
+        xMax: x - offset + sx,
+        yMin: cH - ctx.canvas.height + y,
+        yMax: cH - ctx.canvas.height + y + sy
+    }
+    // un comment to see hitboxes
+    //interactionMask.fillRect(offset + hitbox.xMin, y + firstRow, hitbox.xMax - hitbox.xMin, hitbox.yMax - hitbox.yMin);
+    return hitbox;
+} 
+
     console.timeLog('time', ' - Foreground Renderer® unbridled');
 }
+

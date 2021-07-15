@@ -26,6 +26,7 @@ export function UI(assets, ctx) {
             refreshSmoothies(textBuffer);
             refreshSmoothies(buffer);
             refreshSmoothies(ctx);
+            
             textBuffer.fillStyle = 'white';
             textBuffer.font = '40px AtariST';
 
@@ -69,7 +70,7 @@ export function UI(assets, ctx) {
         this.hideUIBottom();
         this.hidden = false;
         goUp = setInterval(() => {      // ()=> function
-            yUI -= 20;                  //      ||
+            yUI -= 40;                  //      ||
             if (yUI <= 0) {             //      ||
                 clearInterval(goUp);    //      \/
                 this.SetUI();           // pas besoin de let self = this; 
@@ -80,7 +81,7 @@ export function UI(assets, ctx) {
     this.hideUI = function() {
         this.set = false;
         goRight = setInterval(() => {
-            xUI += 20;
+            xUI += 40;
             if (xUI >= cW) {
                 clearInterval(goRight);
                 this.hideUIBottom();

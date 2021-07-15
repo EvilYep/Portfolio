@@ -108,11 +108,11 @@ export class Player {
         }
         
         // uncomment to see player's hitbox
-        //this.ctx.fillStyle = 'lime';
-        //this.ctx.fillRect(this.hitbox.left, this.hitbox.top, 3, 150);
-        //this.ctx.fillRect(this.hitbox.left, this.hitbox.bottom, this.hitbox.right - this.hitbox.left, 3);
-        //this.ctx.fillRect(this.hitbox.left, this.hitbox.top, this.hitbox.right - this.hitbox.left, 3);
-        //this.ctx.fillRect(this.hitbox.right, this.hitbox.top, 3, 150);
+        /* this.ctx.fillStyle = 'lime';
+        this.ctx.fillRect(this.hitbox.left, this.hitbox.top, 3, 150);
+        this.ctx.fillRect(this.hitbox.left, this.hitbox.bottom, this.hitbox.right - this.hitbox.left, 3);
+        this.ctx.fillRect(this.hitbox.left, this.hitbox.top, this.hitbox.right - this.hitbox.left, 3);
+        this.ctx.fillRect(this.hitbox.right, this.hitbox.top, 3, 150); */
     }
 
     run(direction) {

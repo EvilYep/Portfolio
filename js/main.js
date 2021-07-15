@@ -4,28 +4,29 @@ import { Player } from './Player.js';
 import { UI } from './UI.js';
 import * as Input from './Input.js';
 import { drawDebugger } from './debug/Debugger.js';
+import { EasterEgg } from './EasterEgg.js';
 
-// Used canvases
 export let gameWindow = document.getElementById('my-canvas');
-let ctx = gameWindow.getContext('2d');
-let interactionMask = document.createElement("canvas").getContext('2d');
-let foreground;
-//Misc
 export let tileSize = LEVEL_TILE_SIZES.LG;
 export let distance = INITIAL_DISTANCE;
-let requestId;              // returned by RAF, used a a parameter to cancelRAF
 export let bufferMaxSize = tileSize * COLS; 
-let lastRenderTime;
 export let offset = distance - INITIAL_DISTANCE;
 export let cW = document.documentElement.clientWidth;
 export let cH = document.documentElement.clientHeight;
 export let direction = 0;
-//let levelMap = Array.from(Array(ROWS), () => new Array(COLS));
-let player;
 export let collided = '';
 export let collected = [];
-let GUI;
 export let paused = true;
+let ctx = gameWindow.getContext('2d');
+let interactionMask = document.createElement("canvas").getContext('2d');
+let background;
+let foreground;
+let requestId;              // returned by RAF, used a a parameter to cancelRAF
+let lastRenderTime;
+let player;
+let GUI;
+let imgs = {}; 
+let sfxs = {}; 
 
 export function togglePause() {
     if (!paused && GUI.hidden) {
@@ -70,6 +71,7 @@ export function checkCollision(hitbox, object) {
 function checkIfCollectible(object, hitbox) {
     if(['Money'].includes(object) && !collected.includes(object)) {
         collected.push(object);
+        sfxs.Coin.play();
         foreground.triggerAnim(object, hitbox, 33);
     }
 }
@@ -89,14 +91,17 @@ function prepareNextFrame() {
 
 // MAIN LOOP FUNCTION
 
-function initCanvas(assets) {
+function initCanvas() {
     console.timeLog('time', ' - Assets loaded');
 
-    let background = new BackGround(assets, ctx);
-    foreground = new ForeGround(assets, ctx, interactionMask);
-    GUI = new UI(assets, ctx);
-    player = new Player(assets, ctx);
-    Input.attachInputListeners(gameWindow, player);
+    background = new BackGround(imgs, ctx);
+    foreground = new ForeGround(imgs, ctx, interactionMask);
+    GUI = new UI(imgs, ctx);
+    player = new Player(imgs, ctx);
+    let easterEgg = new EasterEgg();
+    easterEgg.start(() => { sfxs.Monkey.play(); });
+    Input.attachInputListeners(gameWindow, player, easterEgg);
+
 
     function animateGlobal(currentTime) {
         requestId = window.requestAnimationFrame(animateGlobal);
@@ -108,7 +113,7 @@ function initCanvas(assets) {
         }
         lastRenderTime = currentTime;
 
-        Input.processGamepadInput(player);
+        Input.processGamepadInput(player, easterEgg);
         
         resizeIfNecessary();
         ctx.canvas.width = cW;
@@ -147,23 +152,38 @@ window.onerror = (errorMsg, url, line, col, error) => {
 window.addEventListener('load', function(e) {
     console.time('time');
     ctx.fillStyle = "blue";
-    ctx.font = "bold 16px Arial";
-    ctx.fillText("Loading", (ctx.width / 2) - 17, (ctx.height / 2) + 8);
+    ctx.font = "bold 30px Arial";
+    ctx.fillText("Loading ...", 15, 30);
     loadResources(ASSETS, initCanvas);
 });
 
 // Credits to this guy for this one ! https://github.com/shubhamjain/penguin-walk
 function loadResources(assets, whenLoaded) {
     document.fonts.load('30px AtariST').then(() => {
-        let imgs = {}, imgCounter = 0;
+        let imgCounter = 0;
+        let sfxCounter = 0;
         assets.IMGS.forEach(function(path){
             let img = document.createElement('img');
             img.src = path;
             let fileName = path.split(/[\./]/).slice(-2, -1)[0];
             img.onload = function(){
+                ctx.clearRect(15, 50, gameWindow.width, 30);
+                ctx.fillText("Img " + imgCounter + "/" + assets.IMGS.length, 15, 80);
                 imgs[fileName] = img;
                 imgCounter++;
-                assets.IMGS.length == imgCounter ? whenLoaded(imgs) : console.log('suspenseful loading time...');	
+                (assets.IMGS.length == imgCounter) && (assets.SFX.length == sfxCounter) ? whenLoaded() : console.log('suspenseful loading time...');	
+            };
+        });
+        assets.SFX.forEach(function(path){
+            let sfx = document.createElement('audio');
+            sfx.src = path;
+            let fileName = path.split(/[\./]/).slice(-2, -1)[0];
+            sfx.onloadeddata = function() {
+                ctx.clearRect(15, 100, gameWindow.width, gameWindow.height);
+                ctx.fillText("Sfx " + sfxCounter + "/" + assets.SFX.length, 15, 130);
+                sfxs[fileName] = sfx;
+			    sfxCounter++;
+                (assets.IMGS.length == imgCounter) && (assets.SFX.length == sfxCounter) ? whenLoaded() : console.log('suspenseful loading time...');
             };
         });
     });

@@ -8,6 +8,7 @@ export function ForeGround(assets, ctx, interactionMask) {
     this.imgs = assets; 
     this.offset = offset;
     this.spriteEngine = new SpriteEngine(false);
+    
     let buffer = document.createElement("canvas").getContext('2d');
     this.ponctualAnim = null;
 
@@ -88,19 +89,20 @@ export function ForeGround(assets, ctx, interactionMask) {
                 }
 
                 //uncomment to see grid
-                //ctx.fillStyle = 'orange';
-                //for (let i = 0; i < ROWS + 1; i++) {
-                //   buffer.fillRect(0, tileY * i - 1, cW * 3, 3);
-                //}
-                //for (let i = 0; i < COLS; i++) {
-                //    buffer.fillRect(tileX * i -1, 0, 3, cH * 3);
-                //}
+                ctx.fillStyle = 'orange';
+                for (let i = 0; i < ROWS + 1; i++) {
+                   buffer.fillRect(0, tileY * i - 1, cW * 3, 3);
+                }
+                for (let i = 0; i < COLS; i++) {
+                    buffer.fillRect(tileX * i -1, 0, 3, cH * 3);
+                }
             }
         }        
         
         if (this.ponctualAnim) {
-            buffer.drawImage(this.imgs.MagicBarrier_64x64, (this.spriteEngine.getFrame() % this.ponctualAnim.fr) * 64, 0, 64, 64, 
-                tileSize * 7 - 25, 0, 128, 128);
+            if (this.ponctualAnim.ob == "Money" ) {
+                buffer.drawImage(this.imgs.MagicBarrier_64x64, (this.spriteEngine.getFrame() % this.ponctualAnim.fr) * 64, 0, 64, 64, tileSize * 7 - 25, -10, 128, 128);
+            }
             if(this.spriteEngine.getFrame() >= this.ponctualAnim.fr - 1) {
                 this.spriteEngine.setSpeed(150);
                 this.ponctualAnim = null;
@@ -110,8 +112,8 @@ export function ForeGround(assets, ctx, interactionMask) {
         ctx.drawImage(buffer.canvas, this.offset-=(direction * SPEED), buffer.canvas.height - cH, cW, cH, 0, 0, cW, cH);
         ctx.drawImage(interactionMask.canvas, this.offset-=(direction * SPEED), interactionMask.canvas.height - cH, cW, cH, 0, 0, cW, cH);
         // uncommment to see INITIAL_DISTANCE
-        //ctx.fillStyle = 'red';       
-        //ctx.fillRect(INITIAL_DISTANCE - 2, 0, 4, cH);
+        ctx.fillStyle = 'red';       
+        ctx.fillRect(INITIAL_DISTANCE - 2, 0, 4, cH);
     }
 
     this.drawInteractable = function(sprite, frame, z, cx, cy, x, y, sx, sy, ctx) {

@@ -7,7 +7,7 @@ export function BackGround(assets, ctx) {
     this.imgs = assets; 
     this.x = 0, this.x2 = 0, this.x3 = 0, this.x4 = 0, this.xRoad = 0, this.y = 0; 
     this.xDelorean = 3600, this.xD1 = 3507, this.xD2 = 3605; 
-    this.scaling = cW / 0.5;
+    this.scaling = cW * 2;
     let initH = 970;
     let offsets = [310, 1068, 1867, 3318, 2358, 3592, 1814, 864, 2822, 1617, 2502];
 
@@ -47,11 +47,7 @@ export function BackGround(assets, ctx) {
         //Road
         ctx.drawImage(this.imgs.road, this.xRoad -= (direction * SPEED), cH - initH + 655, this.imgs.road.width, 325);
 
-        
-        
-        //this.xDelorean -= (direction * SPEED) / 2.75 + 1.5
-        
-        if(this.x4 <= -(this.scaling/3 - 1)) { this.x4 = 0; }
+        if(this.x4 <= -(this.scaling/2 - 1)) { this.x4 = 0; }
         if(this.xDelorean <= -2000) { this.xDelorean = 3600; this.xD1 = 3507; this.xD2 = 3605;  }
     }
 

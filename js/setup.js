@@ -36,6 +36,7 @@ const ASSETS = {
         "./assets/NPCs/Cyborg_idle_L.png", 
         "./assets/NPCs/Punk_idle.png", 
         "./assets/NPCs/Punk_idle_L.png", 
+        "./assets/NPCs/Stan.png", 
         "./assets/objects/Pointer1.png", 
         "./assets/objects/Pointer2.png",
         "./assets/objects/Fence1.png", 
@@ -78,6 +79,10 @@ const ASSETS = {
         "./assets/UI/W.png",
         "./assets/UI/Z.png",
         "./assets/UI/pane_200x150.png",
+    ],
+    SFX: [
+        "./assets/SFX/Monkey.mp3",
+        "./assets/SFX/Coin.wav",
     ]
 };
 

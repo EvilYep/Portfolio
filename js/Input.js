@@ -13,7 +13,7 @@ let mouseDTime, mouseUTime;
 let dblclick = false;
 let lastKey;
 
-export function attachInputListeners(gameWindow, player) {
+export function attachInputListeners(gameWindow, player, easterEgg) {
     
     window.addEventListener('contextmenu', e => e.preventDefault());
 
@@ -42,7 +42,7 @@ export function attachInputListeners(gameWindow, player) {
         }
     };
 
-    gameWindow.ondblclick = (e) => {
+    gameWindow.ondblclick = (e) => { // TODO : make it work
         if(!paused) {
             dblclick = true;
             player.runTo(e.clientX);
@@ -140,10 +140,11 @@ function getButtons() {
     return k;
   }
 
-export function processGamepadInput(player) {
+export function processGamepadInput(player, easterEgg) {
     gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads : []);
     gamepad = gamepads[0];
     if (gamepad) {
+        easterEgg.checkGamepad(gamepad);
         if (buttonPressed(gamepad.buttons[9]) && buttonReady) {
             togglePause();
             buttonReady = false;
